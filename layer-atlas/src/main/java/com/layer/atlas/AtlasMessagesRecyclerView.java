@@ -218,4 +218,12 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
         ta.recycle();
         this.mMessageStyle = messageStyleBuilder.build();
     }
+
+    public void setMyBubbleColor(int myBubbleColor) { mMessageStyle.setMyBubbleColor(myBubbleColor); }
+
+    public void setMyTextColor(int myTextColor) { mMessageStyle.setMyTextColor(myTextColor); }
+
+    public void setOtherBubbleColor(int otherBubbleColor) { mMessageStyle.setOtherBubbleColor(otherBubbleColor); }
+
+    public void setOtherTextColor(int otherTextColor) { mMessageStyle.setOtherTextColor(otherTextColor); }
 }
