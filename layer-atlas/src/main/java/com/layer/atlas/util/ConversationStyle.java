@@ -62,6 +62,8 @@ public final class ConversationStyle {
         this.mDateTextTypeface = dateTextTypeface;
     }
 
+    public void setDateTextColor(int dateTextColor) { this.mDateTextColor = dateTextColor; }
+
     public int getTitleTextColor() {
         return mTitleTextColor;
     }

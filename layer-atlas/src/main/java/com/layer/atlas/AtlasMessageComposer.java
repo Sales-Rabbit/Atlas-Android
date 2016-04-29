@@ -369,6 +369,16 @@ public class AtlasMessageComposer extends FrameLayout {
         }
     }
 
+    public void setCursorColor(int cursorColor) {
+        this.mCursorColor = cursorColor;
+        EditTextUtil.setCursorDrawableColor(mMessageEditText, mCursorColor);
+    }
+
+    public void setUnderlineColor(int underlineColor) {
+        this.mUnderlineColor = underlineColor;
+        EditTextUtil.setUnderlineColor(mMessageEditText, mUnderlineColor);
+    }
+
     /**
      * Saves a map from AttachmentSender class to AttachmentSender saved instance.
      */
