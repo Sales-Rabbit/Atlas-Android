@@ -1,6 +1,9 @@
 package com.layer.atlas.adapters;
 
+import android.app.Application;
 import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +42,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private final DateFormat mDateFormat;
     private final DateFormat mTimeFormat;
     private ConversationStyle conversationStyle;
+
+    private static int mLastPositionSelected;
+    private static View mLastViewSelected;
+    private static int mBackgroundColor;
+    private static int mDefaultColor;
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
         this(context, client, participantProvider, picasso, null);
@@ -96,6 +104,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         this.conversationStyle = conversationStyle;
     }
 
+    public void setItemSelectedColor(@ColorInt int unselectedColor, @ColorInt int selectedColor) {
+        mBackgroundColor = selectedColor;
+        mDefaultColor = unselectedColor;
+    }
+
     private void syncInitialMessages(final int start, final int length) {
         new Thread(new Runnable() {
             @Override
@@ -148,6 +161,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        viewHolder.currentPosition = position;
+
         mQueryController.updateBoundPosition(position);
         Conversation conversation = mQueryController.getItem(position);
         Message lastMessage = conversation.getLastMessage();
@@ -160,6 +175,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, mParticipantProvider, conversation));
         viewHolder.applyStyle(conversation.getTotalUnreadMessageCount() > 0);
 
+
+
         if (lastMessage == null) {
             viewHolder.mMessageView.setText(null);
             viewHolder.mTimeView.setText(null);
@@ -170,6 +187,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             } else {
                 viewHolder.mTimeView.setText(Util.formatTime(context, lastMessage.getSentAt(), mTimeFormat, mDateFormat));
             }
+        }
+
+        if (position == mLastPositionSelected) {
+            viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+                mLastViewSelected = viewHolder.masterView;
+        } else {
+            viewHolder.masterView.setBackgroundColor(mDefaultColor);
         }
     }
 
@@ -265,6 +289,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         protected Conversation mConversation;
         protected OnClickListener mClickListener;
 
+        public View masterView;
+        public int currentPosition;
+
         public ViewHolder(View itemView, ConversationStyle conversationStyle) {
             super(itemView);
             itemView.setOnClickListener(this);
@@ -276,6 +303,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             mMessageView = (TextView) itemView.findViewById(R.id.last_message);
             mTimeView = (TextView) itemView.findViewById(R.id.time);
             itemView.setBackgroundColor(conversationStyle.getCellBackgroundColor());
+            masterView = itemView;
         }
 
         public void applyStyle(boolean unread) {
@@ -304,6 +332,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         public void onClick(View v) {
             if (mClickListener == null) return;
             mClickListener.onClick(this);
+
+            if (mLastViewSelected != null) {
+                mLastViewSelected.setBackgroundColor(mDefaultColor);
+            }
+            mLastPositionSelected = currentPosition;
+            v.setBackgroundColor(mBackgroundColor);
+            mLastViewSelected = v;
         }
 
         @Override
