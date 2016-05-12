@@ -21,7 +21,11 @@
               android:paddingLeft="@dimen/atlas_padding_normal"
               android:paddingRight="@dimen/atlas_padding_normal"
               android:paddingTop="@dimen/atlas_padding_narrow"
+<<<<<<< HEAD
               android:background="@android:drawable/dialog_holo_light_frame"
 
+=======
+    android:background="@android:drawable/dialog_holo_light_frame"
+>>>>>>> tempMod
     >
 </LinearLayout>

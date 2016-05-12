@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -53,7 +54,9 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     public AtlasConversationsRecyclerView(Context context) {
         super(context);
     }
-
+    public void setDateTextColor(int dateTextColor) {
+                conversationStyle.setDateTextColor(dateTextColor);
+            }
     public AtlasConversationsRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -68,6 +71,10 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         super.setAdapter(mAdapter);
 
         return this;
+    }
+
+    public void setItemSelectedColor(@ColorInt int unselectedColor, @ColorInt int selectedColor) {
+        mAdapter.setItemSelectedColor(unselectedColor,selectedColor);
     }
 
     @Override
