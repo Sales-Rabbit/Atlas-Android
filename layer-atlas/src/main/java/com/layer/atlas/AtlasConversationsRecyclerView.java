@@ -54,9 +54,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     public AtlasConversationsRecyclerView(Context context) {
         super(context);
     }
-    public void setDateTextColor(int dateTextColor) {
-                conversationStyle.setDateTextColor(dateTextColor);
-            }
+
     public AtlasConversationsRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);

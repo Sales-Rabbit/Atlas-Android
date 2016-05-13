@@ -89,13 +89,7 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
 
         return this;
     }
-    public void setMyBubbleColor(int myBubbleColor) { mMessageStyle.setMyBubbleColor(myBubbleColor); }
 
-               public void setMyTextColor(int myTextColor) { mMessageStyle.setMyTextColor(myTextColor); }
-
-                public void setOtherBubbleColor(int otherBubbleColor) { mMessageStyle.setOtherBubbleColor(otherBubbleColor); }
-
-               public void setOtherTextColor(int otherTextColor) { mMessageStyle.setOtherTextColor(otherTextColor); }
     @Override
     public void setAdapter(Adapter adapter) {
         throw new RuntimeException("AtlasMessagesRecyclerView sets its own Adapter");

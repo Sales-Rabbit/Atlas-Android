@@ -29,11 +29,12 @@ public class MessageStyle {
     }
     public void setMyBubbleColor(int myBubbleColor) { this.mMyBubbleColor = myBubbleColor; }
 
-                public void setMyTextColor(int myTextColor) { mMyTextColor = myTextColor; }
+    public void setMyTextColor(int myTextColor) { mMyTextColor = myTextColor; }
 
-                public void setOtherBubbleColor(int otherBubbleColor) { this.mOtherBubbleColor = otherBubbleColor; }
+    public void setOtherBubbleColor(int otherBubbleColor) { this.mOtherBubbleColor = otherBubbleColor; }
 
-                public void setOtherTextColor(int otherTextColor) { this.mOtherTextColor = otherTextColor; }
+    public void setOtherTextColor(int otherTextColor) { this.mOtherTextColor = otherTextColor; }
+
     public void setMyTextTypeface(Typeface myTextTypeface) {
         this.mMyTextTypeface = myTextTypeface;
     }
@@ -41,14 +42,6 @@ public class MessageStyle {
     public void setOtherTextTypeface(Typeface otherTextTypeface) {
         this.mOtherTextTypeface = otherTextTypeface;
     }
-
-    public void setMyBubbleColor(int myBubbleColor) { this.mMyBubbleColor = myBubbleColor; }
-
-    public void setMyTextColor(int myTextColor) { mMyTextColor = myTextColor; }
-
-    public void setOtherBubbleColor(int otherBubbleColor) { this.mOtherBubbleColor = otherBubbleColor; }
-
-    public void setOtherTextColor(int otherTextColor) { this.mOtherTextColor = otherTextColor; }
 
     public int getMyBubbleColor() {
         return mMyBubbleColor;
