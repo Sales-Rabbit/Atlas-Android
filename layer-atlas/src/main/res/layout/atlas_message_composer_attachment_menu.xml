@@ -20,7 +20,6 @@
               android:paddingBottom="@dimen/atlas_padding_narrow"
               android:paddingLeft="@dimen/atlas_padding_normal"
               android:paddingRight="@dimen/atlas_padding_normal"
-              android:paddingTop="@dimen/atlas_padding_narrow"
-              android:background="@android:drawable/dialog_holo_light_frame">
+              android:paddingTop="@dimen/atlas_padding_narrow">
 
 </LinearLayout>

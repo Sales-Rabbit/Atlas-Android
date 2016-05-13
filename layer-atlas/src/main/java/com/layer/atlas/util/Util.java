@@ -54,7 +54,15 @@ public class Util {
     private static final String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
     private static final int TIME_HOURS_24 = 24 * 60 * 60 * 1000;
     private static final SimpleDateFormat DAY_OF_WEEK = new SimpleDateFormat("EEE, LLL dd,", Locale.US);
+    private static CustomTitleMethod customTitleMethod = null;
 
+    public static void setCustomTitleMethod(CustomTitleMethod listenerToSet) {
+        customTitleMethod = listenerToSet;
+    }
+
+    public interface CustomTitleMethod {
+        String getConversationTitle(LayerClient client, ParticipantProvider provider, Conversation conversation);
+    }
     /**
      * Returns the app version name.
      *
@@ -92,20 +100,24 @@ public class Util {
     }
 
     public static String getConversationTitle(LayerClient client, ParticipantProvider provider, Conversation conversation) {
-        String metadataTitle = getConversationMetadataTitle(conversation);
-        if (metadataTitle != null) return metadataTitle.trim();
+        if (customTitleMethod != null) {
+               return customTitleMethod.getConversationTitle(client, provider, conversation);
+        } else {
+            String metadataTitle = getConversationMetadataTitle(conversation);
+            if (metadataTitle != null) return metadataTitle.trim();
 
-        StringBuilder sb = new StringBuilder();
-        String userId = client.getAuthenticatedUserId();
-        for (String participantId : conversation.getParticipants()) {
-            if (participantId.equals(userId)) continue;
-            Participant participant = provider.getParticipant(participantId);
-            if (participant == null) continue;
-            String initials = conversation.getParticipants().size() > 2 ? getInitials(participant) : participant.getName();
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(initials);
+            StringBuilder sb = new StringBuilder();
+            String userId = client.getAuthenticatedUserId();
+            for (String participantId : conversation.getParticipants()) {
+                    if (participantId.equals(userId)) continue;
+                    Participant participant = provider.getParticipant(participantId);
+                    if (participant == null) continue;
+                    String initials = conversation.getParticipants().size() > 2 ? getInitials(participant) : participant.getName();
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(initials);
+                }
+            return sb.toString().trim();
         }
-        return sb.toString().trim();
     }
 
     public static String getConversationMetadataTitle(Conversation conversation) {
