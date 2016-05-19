@@ -3,6 +3,7 @@ package com.layer.atlas.adapters;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,8 +26,10 @@ import com.layer.sdk.query.SortDescriptor;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConversationsAdapter.ViewHolder> implements AtlasBaseAdapter<Conversation>, RecyclerViewController.Callback {
     protected final LayerClient mLayerClient;
@@ -47,6 +50,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private static View mLastViewSelected;
     private static int mBackgroundColor;
     private static int mDefaultColor;
+    private static List<ViewHolder> holders = new ArrayList<>();
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
         this(context, client, participantProvider, picasso, null);
@@ -109,6 +113,23 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mDefaultColor = unselectedColor;
     }
 
+    public void setItemSelected(Conversation conversation) {
+        int positionSelected = mQueryController.getPosition(conversation);
+        //find newly selected View background and set the background to selected
+        for(int i = 0; i < holders.size(); i++) {
+            if (holders.get(i).currentPosition == positionSelected) {
+//                holders.get(i).masterView.setBackgroundColor(mBackgroundColor);
+                if(Build.VERSION.SDK_INT >=15) {holders.get(i).masterView.callOnClick();}
+                else {holders.get(i).masterView.performClick();}
+            }
+        }
+        // reset old view background
+//        mLastViewSelected.setBackgroundColor(mDefaultColor);
+//        //re-assign all class variables
+//        mLastPositionSelected = positionSelected;
+//        mQueryController.updateBoundPosition(positionSelected);
+    }
+
     private void syncInitialMessages(final int start, final int length) {
         new Thread(new Runnable() {
             @Override
@@ -156,6 +177,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         viewHolder.mAvatarCluster
                 .init(mParticipantProvider, mPicasso)
                 .setStyle(conversationStyle.getAvatarStyle());
+        holders.add(viewHolder);
         return viewHolder;
     }
 
@@ -352,6 +374,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
             boolean onLongClick(ViewHolder viewHolder);
         }
+
     }
 
     /**
