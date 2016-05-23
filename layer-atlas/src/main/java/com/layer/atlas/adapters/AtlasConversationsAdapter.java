@@ -112,10 +112,10 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mDefaultColor = unselectedColor;
     }
 
-    public void setItemSelected() {
+    public void deSelectCurrentSelection() {
         // reset old view background
         mLastViewSelected.setBackgroundColor(mDefaultColor);
-    }
+    } 
 
     private void syncInitialMessages(final int start, final int length) {
         new Thread(new Runnable() {

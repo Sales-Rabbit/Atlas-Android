@@ -74,8 +74,8 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     public void setItemSelectedColor(@ColorInt int unselectedColor, @ColorInt int selectedColor) {
         mAdapter.setItemSelectedColor(unselectedColor,selectedColor);
     }
-    public void setItemSelected() {
-        mAdapter.setItemSelected();
+    public void deSelectCurrentSelection() {
+        mAdapter.deSelectCurrentSelection();
     }
 
     @Override
