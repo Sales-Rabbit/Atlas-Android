@@ -50,7 +50,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private static View mLastViewSelected;
     private static int mBackgroundColor;
     private static int mDefaultColor;
-    private static List<ViewHolder> holders = new ArrayList<>();
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
         this(context, client, participantProvider, picasso, null);
@@ -113,21 +112,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mDefaultColor = unselectedColor;
     }
 
-    public void setItemSelected(Conversation conversation) {
-        int positionSelected = mQueryController.getPosition(conversation);
-        //find newly selected View background and set the background to selected
-        for(int i = 0; i < holders.size(); i++) {
-            if (holders.get(i).currentPosition == positionSelected) {
-//                holders.get(i).masterView.setBackgroundColor(mBackgroundColor);
-                if(Build.VERSION.SDK_INT >=15) {holders.get(i).masterView.callOnClick();}
-                else {holders.get(i).masterView.performClick();}
-            }
-        }
+    public void setItemSelected() {
         // reset old view background
-//        mLastViewSelected.setBackgroundColor(mDefaultColor);
-//        //re-assign all class variables
-//        mLastPositionSelected = positionSelected;
-//        mQueryController.updateBoundPosition(positionSelected);
+        mLastViewSelected.setBackgroundColor(mDefaultColor);
     }
 
     private void syncInitialMessages(final int start, final int length) {
@@ -177,7 +164,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         viewHolder.mAvatarCluster
                 .init(mParticipantProvider, mPicasso)
                 .setStyle(conversationStyle.getAvatarStyle());
-        holders.add(viewHolder);
         return viewHolder;
     }
 
