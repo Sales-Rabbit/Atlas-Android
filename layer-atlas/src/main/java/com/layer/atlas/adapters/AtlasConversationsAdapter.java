@@ -116,6 +116,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         // reset old view background
         if (mLastViewSelected != null) {
             mLastViewSelected.setBackgroundColor(mDefaultColor);
+
+            //See comment in MessagingFragment class documentation.
+            mLastPositionSelected = 0;
         }
     } 
 
