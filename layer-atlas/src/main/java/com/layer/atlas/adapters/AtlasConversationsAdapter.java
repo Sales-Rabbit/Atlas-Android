@@ -174,6 +174,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        int viewHoldersPriorPosition = viewHolder.currentPosition;
         viewHolder.currentPosition = position;
 
         mQueryController.updateBoundPosition(position);
@@ -203,8 +204,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         }
 
         if (position == mLastPositionSelected) {
-            viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+
+            if (viewHoldersPriorPosition > viewHolder.currentPosition) {
+                mLastPositionSelected++;
+            } else {
+                viewHolder.masterView.setBackgroundColor(mBackgroundColor);
                 mLastViewSelected = viewHolder.masterView;
+            }
         } else {
             viewHolder.masterView.setBackgroundColor(mDefaultColor);
         }
