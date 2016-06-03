@@ -28,8 +28,10 @@ import com.squareup.picasso.Picasso;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConversationsAdapter.ViewHolder> implements AtlasBaseAdapter<Conversation>, RecyclerViewController.Callback {
     protected final LayerClient mLayerClient;
@@ -50,6 +52,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private static View mLastViewSelected;
     private static int mBackgroundColor;
     private static int mDefaultColor;
+    private static ViewHolder selectedHolder;
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
         this(context, client, participantProvider, picasso, null);
@@ -120,7 +123,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             //See comment in MessagingFragment class documentation.
             mLastPositionSelected = 0;
         }
-    } 
+    }
 
     private void syncInitialMessages(final int start, final int length) {
         new Thread(new Runnable() {
@@ -204,14 +207,15 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         }
 
         if (position == mLastPositionSelected) {
-
-            if (viewHoldersPriorPosition > viewHolder.currentPosition) {
-                mLastPositionSelected++;
+            if (position == 0){ //if we are in the 0th position we need to handl for special cases when a new lead is placed above the currently selected lead.
+                mLastPositionSelected++; //layer has added a position above the selected item.
             } else {
                 viewHolder.masterView.setBackgroundColor(mBackgroundColor);
                 mLastViewSelected = viewHolder.masterView;
             }
+
         } else {
+            
             viewHolder.masterView.setBackgroundColor(mDefaultColor);
         }
     }
@@ -358,6 +362,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             mLastPositionSelected = currentPosition;
             v.setBackgroundColor(mBackgroundColor);
             mLastViewSelected = v;
+            selectedHolder = this;
         }
 
         @Override
