@@ -53,6 +53,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private static int mBackgroundColor;
     private static int mDefaultColor;
     private static ViewHolder selectedHolder;
+    private static int numPlacesIncreased = 0;
+    private static boolean ignoreReset = false;
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
         this(context, client, participantProvider, picasso, null);
@@ -206,17 +208,21 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             }
         }
 
-        if (position == mLastPositionSelected) {
-            if (position == 0){ //if we are in the 0th position we need to handl for special cases when a new lead is placed above the currently selected lead.
-                mLastPositionSelected++; //layer has added a position above the selected item.
-            } else {
-                viewHolder.masterView.setBackgroundColor(mBackgroundColor);
-                mLastViewSelected = viewHolder.masterView;
-            }
-
+        if(ignoreReset){
+            ignoreReset = false;
         } else {
-            
-            viewHolder.masterView.setBackgroundColor(mDefaultColor);
+            if (position == mLastPositionSelected) {
+                if (position == 0) { //if we are in the 0th position we need to handl for special cases when a new lead is placed above the currently selected lead.
+                    mLastPositionSelected++; //layer has added a position above the selected item.
+                    numPlacesIncreased++;
+                } else {
+                    viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+                    mLastViewSelected = viewHolder.masterView;
+                }
+
+            } else {
+                viewHolder.masterView.setBackgroundColor(mDefaultColor);
+            }
         }
     }
 
@@ -359,6 +365,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             if (mLastViewSelected != null) {
                 mLastViewSelected.setBackgroundColor(mDefaultColor);
             }
+//            if (numPlacesIncreased > 0) {
+//                currentPosition = currentPosition+numPlacesIncreased;
+//                numPlacesIncreased = 0;
+//            }
+            ignoreReset = true;
             mLastPositionSelected = currentPosition;
             v.setBackgroundColor(mBackgroundColor);
             mLastViewSelected = v;
