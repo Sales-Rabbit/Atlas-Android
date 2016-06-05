@@ -1,6 +1,5 @@
 package com.layer.atlas.provider;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 
 /**
@@ -28,8 +27,6 @@ public interface Participant extends Comparable<Participant> {
      * @return the URL for an avatar image for this Participant.
      */
     Uri getAvatarUrl();
-
-    Bitmap getBitmap();
 
     /**
      * Allows sorting Participants.

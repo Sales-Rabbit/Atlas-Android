@@ -144,7 +144,7 @@ public class AtlasAvatar extends View {
             for (String participantId : mParticipants) {
                 Participant participant = mParticipantProvider.getParticipant(participantId);
                 if (participant == null) continue;
-                if (participant.getAvatarUrl() != null && participant.getBitmap() != null) {
+                if (participant.getAvatarUrl() != null) {
                     withAvatars.add(participantId);
                 } else {
                     withoutAvatars.add(participantId);
@@ -186,7 +186,6 @@ public class AtlasAvatar extends View {
             } else {
                 target = recyclableTargets.remove(0);
             }
-            target.setBitmap(participant.getBitmap());
             target.setUrl(participant.getAvatarUrl());
             mImageTargets.put(added, target);
             toLoad.add(target);
@@ -276,17 +275,14 @@ public class AtlasAvatar extends View {
             // Initials or bitmap
             ImageTarget imageTarget = mImageTargets.get(entry.getKey());
             Bitmap bitmap = (imageTarget == null) ? null : imageTarget.getBitmap();
-            Bitmap givenBitmap = imageTarget.getGivenBitmap();
-            if (bitmap == null && givenBitmap == null) {
+            if (bitmap == null) {
                 String initials = entry.getValue();
                 mPaintInitials.setTextSize(mTextSize);
                 mPaintInitials.getTextBounds(initials, 0, initials.length(), mRect);
                 canvas.drawCircle(cx, cy, contentRadius, mPaintBackground);
                 canvas.drawText(initials, cx - mRect.centerX(), cy - mRect.centerY() - 1f, mPaintInitials);
-            } else if (bitmap != null) {
-                canvas.drawBitmap(bitmap, mContentRect.left, mContentRect.top, PAINT_BITMAP);
             } else {
-                canvas.drawBitmap(givenBitmap, mContentRect.left, mContentRect.top, PAINT_BITMAP);
+                canvas.drawBitmap(bitmap, mContentRect.left, mContentRect.top, PAINT_BITMAP);
             }
 
             // Translate for next avatar
@@ -302,19 +298,10 @@ public class AtlasAvatar extends View {
         private final AtlasAvatar mCluster;
         private Uri mUrl;
         private Bitmap mBitmap;
-        private Bitmap mGivenBitmap;
 
         public ImageTarget(AtlasAvatar cluster) {
             mId = sCounter.incrementAndGet();
             mCluster = cluster;
-        }
-
-        public void setBitmap(Bitmap bitmap) {
-            mGivenBitmap = bitmap;
-        }
-
-        public Bitmap getGivenBitmap() {
-            return mGivenBitmap;
         }
 
         public ImageTarget setUrl(Uri url) {
