@@ -53,7 +53,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private static int mBackgroundColor;
     private static int mDefaultColor;
     private static ViewHolder selectedHolder;
-    private static int numPlacesIncreased = 0;
     private static boolean ignoreReset = false;
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
