@@ -213,7 +213,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             if (position == mLastPositionSelected) {
                 if (position == 0) { //if we are in the 0th position we need to handl for special cases when a new lead is placed above the currently selected lead.
                     mLastPositionSelected++; //layer has added a position above the selected item.
-                    numPlacesIncreased++;
                 } else {
                     viewHolder.masterView.setBackgroundColor(mBackgroundColor);
                     mLastViewSelected = viewHolder.masterView;
