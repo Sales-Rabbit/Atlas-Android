@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.layer.atlas.AtlasAvatar;
+import com.layer.atlas.AtlasConversationsRecyclerView;
 import com.layer.atlas.R;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.ConversationStyle;
@@ -56,6 +57,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private static int mDefaultColor;
     private static boolean initializationNeeded = false;
     private static String mLastTitle;
+
+    private RecyclerView mRecyclerView;
 
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
@@ -270,23 +273,35 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemChanged(RecyclerViewController controller, int position) {
         notifyItemChanged(position);
+        if (position == 0) {
+            mRecyclerView.scrollToPosition(position);
+        }
     }
 
     @Override
     public void onQueryItemRangeChanged(RecyclerViewController controller, int positionStart, int itemCount) {
         notifyItemRangeChanged(positionStart, itemCount);
+        if (positionStart == 0) {
+            mRecyclerView.scrollToPosition(positionStart);
+        }
     }
 
     @Override
     public void onQueryItemInserted(RecyclerViewController controller, int position) {
         syncInitialMessages(position, 1);
         notifyItemInserted(position);
+        if (position == 0) {
+            mRecyclerView.scrollToPosition(position);
+        }
     }
 
     @Override
     public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
         syncInitialMessages(positionStart, itemCount);
         notifyItemRangeInserted(positionStart, itemCount);
+        if (positionStart == 0) {
+            mRecyclerView.scrollToPosition(positionStart);
+        }
     }
 
     @Override
@@ -302,8 +317,14 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemMoved(RecyclerViewController controller, int fromPosition, int toPosition) {
         notifyItemMoved(fromPosition, toPosition);
+        if (toPosition == 0) {
+            mRecyclerView.scrollToPosition(toPosition);
+        }
     }
 
+    public void setRecyclerView(AtlasConversationsRecyclerView recyclerView) {
+        this.mRecyclerView = recyclerView;
+    }
 
 
     //==============================================================================================

@@ -18,12 +18,15 @@ package com.layer.atlas;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.Typeface;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
@@ -55,9 +58,12 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         super(context);
     }
 
+
     public AtlasConversationsRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
+
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
         manager.setStackFromEnd(false);
         setLayoutManager(manager);
 
@@ -66,6 +72,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
 
         mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, participantProvider, picasso);
         mAdapter.setStyle(conversationStyle);
+        mAdapter.setRecyclerView(this);
         super.setAdapter(mAdapter);
 
         return this;
