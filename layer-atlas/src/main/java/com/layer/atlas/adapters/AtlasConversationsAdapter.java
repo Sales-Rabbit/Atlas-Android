@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import com.layer.sdk.query.Query;
 import com.layer.sdk.query.RecyclerViewController;
 import com.layer.sdk.query.SortDescriptor;
 import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -48,12 +51,12 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private final DateFormat mTimeFormat;
     private ConversationStyle conversationStyle;
 
-    private static int mLastPositionSelected;
     private static View mLastViewSelected;
     private static int mBackgroundColor;
     private static int mDefaultColor;
-    private static ViewHolder selectedHolder;
-    private static boolean ignoreReset = false;
+    private static boolean initializationNeeded = false;
+    private static String mLastTitle;
+
 
     public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
         this(context, client, participantProvider, picasso, null);
@@ -88,6 +91,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             }
         };
         setHasStableIds(false);
+        initializationNeeded = true;
     }
 
     /**
@@ -122,7 +126,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             mLastViewSelected.setBackgroundColor(mDefaultColor);
 
             //See comment in MessagingFragment class documentation.
-            mLastPositionSelected = 0;
+
         }
     }
 
@@ -162,6 +166,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
 
+
     //==============================================================================================
     // Adapter
     //==============================================================================================
@@ -173,6 +178,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         viewHolder.mAvatarCluster
                 .init(mParticipantProvider, mPicasso)
                 .setStyle(conversationStyle.getAvatarStyle());
+        viewHolder.isSelected = false;
         return viewHolder;
     }
 
@@ -207,17 +213,18 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             }
         }
 
-        if(ignoreReset){
-            ignoreReset = false;
-        } else {
-            if (position == mLastPositionSelected) {
-                if (position == 0) { //if we are in the 0th position we need to handl for special cases when a new lead is placed above the currently selected lead.
-                    mLastPositionSelected++; //layer has added a position above the selected item.
-                } else {
-                    viewHolder.masterView.setBackgroundColor(mBackgroundColor);
-                    mLastViewSelected = viewHolder.masterView;
-                }
+        if (initializationNeeded) {
+            if (TextUtils.equals(mLastTitle,viewHolder.getTitle())) {
+                viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+                mLastViewSelected = viewHolder.masterView;
+            } else {
+                viewHolder.masterView.setBackgroundColor(mDefaultColor);
+            }
 
+        } else {
+            if ( TextUtils.equals(mLastTitle,viewHolder.getTitle())) { //viewHolder.isSelected &&
+                viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+                mLastViewSelected = viewHolder.masterView;
             } else {
                 viewHolder.masterView.setBackgroundColor(mDefaultColor);
             }
@@ -298,6 +305,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
 
+
     //==============================================================================================
     // Inner classes
     //==============================================================================================
@@ -318,6 +326,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
         public View masterView;
         public int currentPosition;
+        public boolean isSelected;
 
         public ViewHolder(View itemView, ConversationStyle conversationStyle) {
             super(itemView);
@@ -363,21 +372,21 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             if (mLastViewSelected != null) {
                 mLastViewSelected.setBackgroundColor(mDefaultColor);
             }
-//            if (numPlacesIncreased > 0) {
-//                currentPosition = currentPosition+numPlacesIncreased;
-//                numPlacesIncreased = 0;
-//            }
-            ignoreReset = true;
-            mLastPositionSelected = currentPosition;
+            mLastTitle = getTitle();
+            isSelected = true;
+            initializationNeeded = false;
             v.setBackgroundColor(mBackgroundColor);
             mLastViewSelected = v;
-            selectedHolder = this;
         }
 
         @Override
         public boolean onLongClick(View v) {
             if (mClickListener == null) return false;
             return mClickListener.onLongClick(this);
+        }
+
+        public String getTitle() {
+            return mTitleView.getText().toString();
         }
 
         interface OnClickListener {
