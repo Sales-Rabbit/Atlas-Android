@@ -74,6 +74,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         mAdapter.setStyle(conversationStyle);
         mAdapter.setRecyclerView(this);
         super.setAdapter(mAdapter);
+        refresh();
 
         return this;
     }
