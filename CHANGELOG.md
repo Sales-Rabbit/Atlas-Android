@@ -1,5 +1,48 @@
 # Atlas Android
 
+## 0.2.14
+
+### Major Changes
+  * Updating to Google Play Services 9.2.0
+
+### Bug Fixes
+  * Attachment sender background is set even when an Atlas theme is not used (APPS-2536)
+
+## 0.2.13
+
+### Major Changes
+  * Update to Layer Android SDK Version 0.21.3
+
+## 0.2.12
+
+### Major Changes
+  * Update to Layer Android SDK Version 0.21.2
+  
+## 0.2.11
+
+### Major Changes
+  * Renamed `Log.setAlwaysLoggable` to `Log.setLoggingEnabled`
+  * Updated to Layer Android SDK Version 0.21.1
+
+### Bug Fixes
+  * A `ViewPager` can now contain `AtlasConversationsRecyclerView` without a manual `refresh()`
+    call (APPS-2444)
+
+## 0.2.10
+
+### Major Changes
+  * Updated to Layer Android SDK Version 0.21.0
+  * Removed `Util.waitForContent` as that is now supported in the Layer SDK
+  * Publishing AAR so it can be included via Maven
+
+### Features
+  * Allowing customization of attachment menu background via `attachmentSendersBackground`
+
+## 0.2.9
+
+### Major Changes
+  * Updated to Layer Android SDK Version 0.20.4
+
 ## 0.2.8
 
 ### Major Changes
