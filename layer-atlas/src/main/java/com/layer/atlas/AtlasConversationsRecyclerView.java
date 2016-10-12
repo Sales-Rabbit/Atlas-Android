@@ -30,7 +30,6 @@ import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.AvatarStyle;
 import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.itemanimators.NoChangeAnimator;
@@ -58,9 +57,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         super(context);
     }
 
-
-    public AtlasConversationsRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
-
+    public AtlasConversationsRecyclerView init(LayerClient layerClient, Picasso picasso) {
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
 
@@ -70,7 +67,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         // Don't flash items when changing content
         setItemAnimator(new NoChangeAnimator());
 
-        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, participantProvider, picasso);
+        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso);
         mAdapter.setStyle(conversationStyle);
         mAdapter.setRecyclerView(this);
         super.setAdapter(mAdapter);
@@ -89,6 +86,15 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     @Override
     public void setAdapter(Adapter adapter) {
         throw new RuntimeException("AtlasConversationsRecyclerView sets its own Adapter");
+    }
+
+    /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        if (mAdapter != null) {
+            mAdapter.onDestroy();
+        }
     }
 
     /**

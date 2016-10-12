@@ -1,6 +1,7 @@
 package com.layer.atlas.messagetypes;
 
 import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 
 public class MessageStyle {
     private int mMyBubbleColor;
@@ -43,10 +44,12 @@ public class MessageStyle {
         this.mOtherTextTypeface = otherTextTypeface;
     }
 
+    @ColorInt
     public int getMyBubbleColor() {
         return mMyBubbleColor;
     }
 
+    @ColorInt
     public int getMyTextColor() {
         return mMyTextColor;
     }
@@ -63,10 +66,12 @@ public class MessageStyle {
         return mMyTextTypeface;
     }
 
+    @ColorInt
     public int getOtherBubbleColor() {
         return mOtherBubbleColor;
     }
 
+    @ColorInt
     public int getOtherTextColor() {
         return mOtherTextColor;
     }
@@ -98,12 +103,12 @@ public class MessageStyle {
         public Builder() {
         }
 
-        public Builder myBubbleColor(int val) {
+        public Builder myBubbleColor(@ColorInt int val) {
             myBubbleColor = val;
             return this;
         }
 
-        public Builder myTextColor(int val) {
+        public Builder myTextColor(@ColorInt int val) {
             myTextColor = val;
             return this;
         }
@@ -123,12 +128,12 @@ public class MessageStyle {
             return this;
         }
 
-        public Builder otherBubbleColor(int val) {
+        public Builder otherBubbleColor(@ColorInt int val) {
             otherBubbleColor = val;
             return this;
         }
 
-        public Builder otherTextColor(int val) {
+        public Builder otherTextColor(@ColorInt int val) {
             otherTextColor = val;
             return this;
         }

@@ -15,11 +15,12 @@ import android.widget.TextView;
 import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.AtlasConversationsRecyclerView;
 import com.layer.atlas.R;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.ConversationStyle;
+import com.layer.atlas.util.IdentityRecyclerViewEventListener;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.query.Predicate;
 import com.layer.sdk.query.Query;
@@ -39,7 +40,6 @@ import java.util.Map;
 
 public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConversationsAdapter.ViewHolder> implements AtlasBaseAdapter<Conversation>, RecyclerViewController.Callback {
     protected final LayerClient mLayerClient;
-    protected final ParticipantProvider mParticipantProvider;
     protected final Picasso mPicasso;
     private final RecyclerViewController<Conversation> mQueryController;
     private final LayoutInflater mInflater;
@@ -51,6 +51,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private final DateFormat mDateFormat;
     private final DateFormat mTimeFormat;
     private ConversationStyle conversationStyle;
+    private final IdentityRecyclerViewEventListener mIdentityEventListener;
 
     private static View mLastViewSelected;
     private static int mBackgroundColor;
@@ -61,11 +62,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private RecyclerView mRecyclerView;
 
 
-    public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso) {
-        this(context, client, participantProvider, picasso, null);
+    public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso) {
+        this(context, client, picasso, null);
     }
 
-    public AtlasConversationsAdapter(Context context, LayerClient client, ParticipantProvider participantProvider, Picasso picasso, Collection<String> updateAttributes) {
+    public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso, Collection<String> updateAttributes) {
         Query<Conversation> query = Query.builder(Conversation.class)
                 /* Only show conversations we're still a member of */
                 .predicate(new Predicate(Conversation.Property.PARTICIPANT_COUNT, Predicate.Operator.GREATER_THAN, 1))
@@ -75,7 +76,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
                 .build();
         mQueryController = client.newRecyclerViewController(query, updateAttributes, this);
         mLayerClient = client;
-        mParticipantProvider = participantProvider;
         mPicasso = picasso;
         mInflater = LayoutInflater.from(context);
         mDateFormat = android.text.format.DateFormat.getDateFormat(context);
@@ -95,6 +95,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         };
         setHasStableIds(false);
         initializationNeeded = true;
+
+        mIdentityEventListener = new IdentityRecyclerViewEventListener(this);
+        mLayerClient.registerEventListener(mIdentityEventListener);
     }
 
     /**
@@ -102,6 +105,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
      */
     public void refresh() {
         mQueryController.execute();
+    }
+
+    /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        mLayerClient.unregisterEventListener(mIdentityEventListener);
     }
 
 
@@ -179,7 +189,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         ViewHolder viewHolder = new ViewHolder(mInflater.inflate(ViewHolder.RESOURCE_ID, parent, false), conversationStyle);
         viewHolder.setClickListener(mViewHolderClickListener);
         viewHolder.mAvatarCluster
-                .init(mParticipantProvider, mPicasso)
+                .init(mPicasso)
                 .setStyle(conversationStyle.getAvatarStyle());
         viewHolder.isSelected = false;
         return viewHolder;
@@ -196,10 +206,14 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         Context context = viewHolder.itemView.getContext();
 
         viewHolder.setConversation(conversation);
-        HashSet<String> participantIds = new HashSet<String>(conversation.getParticipants());
-        participantIds.remove(mLayerClient.getAuthenticatedUserId());
-        viewHolder.mAvatarCluster.setParticipants(participantIds);
-        viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, mParticipantProvider, conversation));
+        HashSet<Identity> participants = new HashSet<>(conversation.getParticipants());
+        participants.remove(mLayerClient.getAuthenticatedUser());
+
+        // Add the position to the positions map for Identity updates
+        mIdentityEventListener.addIdentityPosition(position, participants);
+
+        viewHolder.mAvatarCluster.setParticipants(participants);
+        viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, conversation));
         viewHolder.applyStyle(conversation.getTotalUnreadMessageCount() > 0);
 
 
