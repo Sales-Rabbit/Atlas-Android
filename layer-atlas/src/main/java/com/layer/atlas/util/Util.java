@@ -59,7 +59,7 @@ public class Util {
     }
 
     public interface CustomTitleMethod {
-        String getConversationTitle(LayerClient client, ParticipantProvider provider, Conversation conversation);
+        String getConversationTitle(LayerClient client, Conversation conversation);
     }
     /**
      * Returns the app version name.
@@ -100,7 +100,7 @@ public class Util {
 
     public static String getConversationTitle(LayerClient client, Conversation conversation) {
         if (customTitleMethod != null) {
-            return customTitleMethod.getConversationTitle(client, provider, conversation);
+            return customTitleMethod.getConversationTitle(client, conversation);
         } else {
             String metadataTitle = getConversationMetadataTitle(conversation);
             if (metadataTitle != null) return metadataTitle.trim();
@@ -112,6 +112,8 @@ public class Util {
                 String initials = conversation.getParticipants().size() > 2 ? getInitials(participant) : Util.getDisplayName(participant);
                 if (sb.length() > 0) sb.append(", ");
                 sb.append(initials);
+            }
+            return sb.toString();
         }
     }
 
