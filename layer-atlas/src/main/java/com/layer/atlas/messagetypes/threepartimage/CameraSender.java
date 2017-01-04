@@ -3,9 +3,11 @@ package com.layer.atlas.messagetypes.threepartimage;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AttachmentSender;
@@ -50,7 +52,13 @@ public class CameraSender extends AttachmentSender {
         File file = new File(getContext().getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES), fileName);
         mPhotoFilePath.set(file.getAbsolutePath());
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        final Uri outputUri = Uri.fromFile(file);
+        final Uri outputUri;
+        //If this is running on Android Nougat or newer then use the FileProvider else use the old File object. 
+        if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.N) {
+           outputUri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".fileprovider", file);
+        } else {
+            outputUri = Uri.fromFile(file);
+        }
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
         activity.startActivityForResult(cameraIntent, ACTIVITY_REQUEST_CODE);
     }
