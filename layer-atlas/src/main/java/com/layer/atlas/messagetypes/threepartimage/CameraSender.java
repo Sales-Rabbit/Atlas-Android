@@ -53,13 +53,12 @@ public class CameraSender extends AttachmentSender {
         mPhotoFilePath.set(file.getAbsolutePath());
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         final Uri outputUri;
+        //If this is running on Android Nougat or newer then use the FileProvider else use the old File object. 
         if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.N) {
            outputUri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".fileprovider", file);
         } else {
             outputUri = Uri.fromFile(file);
         }
-//        final Uri outputUri = Uri.fromFile(file);
-//        final Uri outputUri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".fileprovider", file);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
         activity.startActivityForResult(cameraIntent, ACTIVITY_REQUEST_CODE);
     }
