@@ -19,6 +19,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.support.annotation.ColorInt;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -56,6 +58,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     public AtlasConversationsRecyclerView init(LayerClient layerClient, Picasso picasso) {
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
         manager.setStackFromEnd(false);
         setLayoutManager(manager);
 
@@ -64,10 +67,27 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
 
         mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso);
         mAdapter.setStyle(conversationStyle);
+        mAdapter.setRecyclerView(this);
         super.setAdapter(mAdapter);
         refresh();
 
         return this;
+    }
+
+    public void setItemSelectedColor(@ColorInt int unselectedColor, @ColorInt int selectedColor) {
+        mAdapter.setItemSelectedColor(unselectedColor,selectedColor);
+    }
+    public void deSelectCurrentSelection() {
+        mAdapter.deSelectCurrentSelection();
+    }
+
+    /**
+     * Utility method to call selectItem() on the mAdapter. See  {@link AtlasConversationsAdapter#selectItem(int, Uri) getComponentAt}
+     * @param index  the index in the recyclerView for the item we wish to call performClick()
+     * @param convoId the Uri (conversationId) that the item should match.  If they do not match we call performClick() on the next item in the recycler, or the prior item if it is the end of the list.
+     */
+    public void selectItem(int index, Uri convoId) {
+        mAdapter.selectItem(index, convoId);
     }
 
     @Override

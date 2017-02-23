@@ -1,13 +1,17 @@
 package com.layer.atlas.adapters;
 
 import android.content.Context;
+import android.net.Uri;
+import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.layer.atlas.AtlasAvatar;
+import com.layer.atlas.AtlasConversationsRecyclerView;
 import com.layer.atlas.R;
 import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.IdentityRecyclerViewEventListener;
@@ -21,6 +25,7 @@ import com.layer.sdk.query.Query;
 import com.layer.sdk.query.RecyclerViewController;
 import com.layer.sdk.query.SortDescriptor;
 import com.squareup.picasso.Picasso;
+
 
 import java.text.DateFormat;
 import java.util.Collection;
@@ -40,6 +45,15 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private final DateFormat mTimeFormat;
     private ConversationStyle conversationStyle;
     private final IdentityRecyclerViewEventListener mIdentityEventListener;
+
+    private static View mLastViewSelected;
+    private static int mBackgroundColor;
+    private static int mDefaultColor;
+    private static boolean initializationNeeded = false;
+    private static String mLastTitle;
+
+    private RecyclerView mRecyclerView;
+
 
     public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso) {
         this(context, client, picasso, null);
@@ -73,6 +87,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             }
         };
         setHasStableIds(false);
+        initializationNeeded = true;
 
         mIdentityEventListener = new IdentityRecyclerViewEventListener(this);
         mLayerClient.registerEventListener(mIdentityEventListener);
@@ -92,6 +107,30 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mLayerClient.unregisterEventListener(mIdentityEventListener);
     }
 
+    /**
+     * Selects the item from the RecylerView that matches the position of the index parameter if the items convoId matches the convoId parameter.
+     * if thy item at the specified index does not have a conversation id (Uri) that match the passed in Uri conversation id then it will select the next item in the list or if it is the end of the list it will select the prior item.
+     * If the user passes in an invalid parameter (a negative number, or a number larger than the size of the recycler's adapter the method will return with out calling performClick() on any item.
+     * @param index  the index in the recyclerView for the item we wish to call performClick()
+     * @param convoId the Uri (conversationId) that the item should match.  If they do not match we call performClick() on the next item in the recycler, or the prior item if it is the end of the list.
+     */
+    public void selectItem(int index, Uri convoId) {
+       ViewHolder tempView = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(index);//.itemView.performClick();
+        int size = mRecyclerView.getAdapter().getItemCount();
+        if (tempView.getConversation().getId().toString().equals(convoId.toString())) {
+            tempView.itemView.performClick();
+        } else if (size < index){
+            mRecyclerView.findViewHolderForAdapterPosition(index+1).itemView.performClick();
+        } else if(size == index) {
+            mRecyclerView.findViewHolderForAdapterPosition(index-1).itemView.performClick();
+        } else if (size == 1) {
+            mRecyclerView.findViewHolderForAdapterPosition(1).itemView.performClick();
+        } else {
+            return;
+        }
+
+    }
+
 
     //==============================================================================================
     // Initial message history
@@ -104,6 +143,21 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
     public void setStyle(ConversationStyle conversationStyle) {
         this.conversationStyle = conversationStyle;
+    }
+
+    public void setItemSelectedColor(@ColorInt int unselectedColor, @ColorInt int selectedColor) {
+        mBackgroundColor = selectedColor;
+        mDefaultColor = unselectedColor;
+    }
+
+    public void deSelectCurrentSelection() {
+        // reset old view background
+        if (mLastViewSelected != null) {
+            mLastViewSelected.setBackgroundColor(mDefaultColor);
+
+            //See comment in MessagingFragment class documentation.
+
+        }
     }
 
     private void syncInitialMessages(final int start, final int length) {
@@ -142,6 +196,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
 
+
     //==============================================================================================
     // Adapter
     //==============================================================================================
@@ -153,11 +208,15 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         viewHolder.mAvatarCluster
                 .init(mPicasso)
                 .setStyle(conversationStyle.getAvatarStyle());
+        viewHolder.isSelected = false;
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        int viewHoldersPriorPosition = viewHolder.currentPosition;
+        viewHolder.currentPosition = position;
+
         mQueryController.updateBoundPosition(position);
         Conversation conversation = mQueryController.getItem(position);
         Message lastMessage = conversation.getLastMessage();
@@ -174,6 +233,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, conversation));
         viewHolder.applyStyle(conversation.getTotalUnreadMessageCount() > 0);
 
+
+
         if (lastMessage == null) {
             viewHolder.mMessageView.setText(null);
             viewHolder.mTimeView.setText(null);
@@ -183,6 +244,23 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
                 viewHolder.mTimeView.setText(null);
             } else {
                 viewHolder.mTimeView.setText(Util.formatTime(context, lastMessage.getReceivedAt(), mTimeFormat, mDateFormat));
+            }
+        }
+
+        if (initializationNeeded) {
+            if (TextUtils.equals(mLastTitle,viewHolder.getTitle())) {
+                viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+                mLastViewSelected = viewHolder.masterView;
+            } else {
+                viewHolder.masterView.setBackgroundColor(mDefaultColor);
+            }
+
+        } else {
+            if ( TextUtils.equals(mLastTitle,viewHolder.getTitle())) { //viewHolder.isSelected &&
+                viewHolder.masterView.setBackgroundColor(mBackgroundColor);
+                mLastViewSelected = viewHolder.masterView;
+            } else {
+                viewHolder.masterView.setBackgroundColor(mDefaultColor);
             }
         }
     }
@@ -226,23 +304,35 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemChanged(RecyclerViewController controller, int position) {
         notifyItemChanged(position);
+        if (position == 0) {
+            mRecyclerView.scrollToPosition(position);
+        }
     }
 
     @Override
     public void onQueryItemRangeChanged(RecyclerViewController controller, int positionStart, int itemCount) {
         notifyItemRangeChanged(positionStart, itemCount);
+        if (positionStart == 0) {
+            mRecyclerView.scrollToPosition(positionStart);
+        }
     }
 
     @Override
     public void onQueryItemInserted(RecyclerViewController controller, int position) {
         syncInitialMessages(position, 1);
         notifyItemInserted(position);
+        if (position == 0) {
+            mRecyclerView.scrollToPosition(position);
+        }
     }
 
     @Override
     public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
         syncInitialMessages(positionStart, itemCount);
         notifyItemRangeInserted(positionStart, itemCount);
+        if (positionStart == 0) {
+            mRecyclerView.scrollToPosition(positionStart);
+        }
     }
 
     @Override
@@ -258,6 +348,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemMoved(RecyclerViewController controller, int fromPosition, int toPosition) {
         notifyItemMoved(fromPosition, toPosition);
+        if (toPosition == 0) {
+            mRecyclerView.scrollToPosition(toPosition);
+        }
+    }
+
+    public void setRecyclerView(AtlasConversationsRecyclerView recyclerView) {
+        this.mRecyclerView = recyclerView;
     }
 
 
@@ -279,6 +376,10 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         protected Conversation mConversation;
         protected OnClickListener mClickListener;
 
+        public View masterView;
+        public int currentPosition;
+        public boolean isSelected;
+
         public ViewHolder(View itemView, ConversationStyle conversationStyle) {
             super(itemView);
             itemView.setOnClickListener(this);
@@ -290,6 +391,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             mMessageView = (TextView) itemView.findViewById(R.id.last_message);
             mTimeView = (TextView) itemView.findViewById(R.id.time);
             itemView.setBackgroundColor(conversationStyle.getCellBackgroundColor());
+            masterView = itemView;
         }
 
         public void applyStyle(boolean unread) {
@@ -318,6 +420,15 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         public void onClick(View v) {
             if (mClickListener == null) return;
             mClickListener.onClick(this);
+
+            if (mLastViewSelected != null) {
+                mLastViewSelected.setBackgroundColor(mDefaultColor);
+            }
+            mLastTitle = getTitle();
+            isSelected = true;
+            initializationNeeded = false;
+            v.setBackgroundColor(mBackgroundColor);
+            mLastViewSelected = v;
         }
 
         @Override
@@ -326,11 +437,16 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             return mClickListener.onLongClick(this);
         }
 
+        public String getTitle() {
+            return mTitleView.getText().toString();
+        }
+
         interface OnClickListener {
             void onClick(ViewHolder viewHolder);
 
             boolean onLongClick(ViewHolder viewHolder);
         }
+
     }
 
     /**
