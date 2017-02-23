@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -81,6 +82,9 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     }
     public void deSelectCurrentSelection() {
         mAdapter.deSelectCurrentSelection();
+    }
+    public void selectItem(int index, Uri convoId) {
+        mAdapter.selectItem(index, convoId);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.layer.atlas.adapters;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
@@ -112,6 +113,16 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
      */
     public void onDestroy() {
         mLayerClient.unregisterEventListener(mIdentityEventListener);
+    }
+
+    public void selectItem(int index, Uri convoId) {
+       ViewHolder tempView = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(index);//.itemView.performClick();
+        if (tempView.getConversation().getId().toString().equals(convoId.toString())) {
+            tempView.itemView.performClick();
+        } else {
+            mRecyclerView.findViewHolderForAdapterPosition(index+1).itemView.performClick();
+        }
+
     }
 
 
