@@ -54,11 +54,17 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     protected Set<AtlasCellFactory> mCellFactories;
     private Set<AtlasCellFactory> mDefaultCellFactories;
 
+    /**
+     * The position of the selected item.  It is defaulted to -1 as we do not want to select any items by default.
+     */
+    private static int mSelectedPosition;
+
     public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso) {
         this(context, client, picasso, null);
     }
 
     public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso, Collection<String> updateAttributes) {
+        mSelectedPosition = -1;
         Query<Conversation> query = Query.builder(Conversation.class)
                 /* Only show conversations we're still a member of */
                 .predicate(new Predicate(Conversation.Property.PARTICIPANT_COUNT, Predicate.Operator.GREATER_THAN, 1))
@@ -74,9 +80,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
         mViewHolderClickListener = new ViewHolder.OnClickListener() {
             @Override
-            public void onClick(ViewHolder viewHolder) {
+            public void onClick(ViewHolder viewHolder, int position) {
                 if (mConversationClickListener == null) return;
-
+                updateSelectedItem(position);
                 if (Log.isPerfLoggable()) {
                     Log.perf("Conversation ViewHolder onClick");
                 }
@@ -94,6 +100,16 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
         mIdentityEventListener = new IdentityRecyclerViewEventListener(this);
         mLayerClient.registerEventListener(mIdentityEventListener);
+    }
+
+    /**
+     * Updates the mSelectedPosition marker to the Position passed in the params.  Notifs adapter that the old item that was selected has changed, and that the new item that is selected has changed.
+     * @param position the position of the currently selected item.
+     */
+    private void updateSelectedItem(int position) {
+        notifyItemChanged(mSelectedPosition);
+        mSelectedPosition = position;
+        notifyItemChanged(mSelectedPosition);
     }
 
     public AtlasConversationsAdapter addCellFactories(AtlasCellFactory... cellFactories) {
@@ -187,6 +203,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         Conversation conversation = mQueryController.getItem(position);
         Message lastMessage = conversation.getLastMessage();
         Context context = viewHolder.itemView.getContext();
+
+        viewHolder.itemView.setActivated(mSelectedPosition == position);
 
         viewHolder.setConversation(conversation);
         Set<Identity> participants = conversation.getParticipants();
@@ -303,7 +321,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     public void onQueryItemInserted(RecyclerViewController controller, int position) {
         syncInitialMessages(position, 1);
         notifyItemInserted(position);
-
+        if (mSelectedPosition == position) {
+            updateSelectedItem(mSelectedPosition + 1);
+        } else if(mSelectedPosition > position) {
+            updateSelectedItem(mSelectedPosition - 1);
+        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemInserted. Position: " + position);
         }
@@ -313,7 +335,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
         syncInitialMessages(positionStart, itemCount);
         notifyItemRangeInserted(positionStart, itemCount);
-
+        if(mSelectedPosition >= positionStart) {
+            updateSelectedItem(mSelectedPosition + itemCount);
+        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemRangeInserted. Position start: " + positionStart + " Count: " + itemCount);
         }
@@ -322,7 +346,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemRemoved(RecyclerViewController controller, int position) {
         notifyItemRemoved(position);
-
+        if (mSelectedPosition == position) {
+            updateSelectedItem(-1);
+        } else if(mSelectedPosition > position) {
+            updateSelectedItem(mSelectedPosition - 1);
+        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemRemoved. Position: " + position);
         }
@@ -331,7 +359,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemRangeRemoved(RecyclerViewController controller, int positionStart, int itemCount) {
         notifyItemRangeRemoved(positionStart, itemCount);
-
+        if(mSelectedPosition >= positionStart && mSelectedPosition <= (positionStart + itemCount)) {
+            updateSelectedItem(-1);
+        } else if(mSelectedPosition > (positionStart + itemCount)) {
+            updateSelectedItem(mSelectedPosition - itemCount);
+        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemRangeRemoved. Position start: " + positionStart + " Count: " + itemCount);
         }
@@ -340,7 +372,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemMoved(RecyclerViewController controller, int fromPosition, int toPosition) {
         notifyItemMoved(fromPosition, toPosition);
-
+        if (mSelectedPosition == fromPosition) {
+            updateSelectedItem(toPosition);
+        } else if(mSelectedPosition == toPosition) {
+            updateSelectedItem(mSelectedPosition - 1);
+        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemMoved. From: " + fromPosition + " To: " + toPosition);
         }
@@ -403,7 +439,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         @Override
         public void onClick(View v) {
             if (mClickListener == null) return;
-            mClickListener.onClick(this);
+            mClickListener.onClick(this, getLayoutPosition());
         }
 
         @Override
@@ -413,7 +449,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         }
 
         interface OnClickListener {
-            void onClick(ViewHolder viewHolder);
+            void onClick(ViewHolder viewHolder, int position);
 
             boolean onLongClick(ViewHolder viewHolder);
         }
