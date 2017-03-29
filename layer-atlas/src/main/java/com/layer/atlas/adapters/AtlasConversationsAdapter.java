@@ -1,9 +1,7 @@
 package com.layer.atlas.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,10 +85,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mViewHolderClickListener = new ViewHolder.OnClickListener() {
             @Override
             public void onClick(ViewHolder viewHolder, int position) {
-                if (mConversationClickListener == null) return;
-//                notifyItemChanged(mSelectedPosition);
-//                mSelectedPosition = position;
-//                notifyItemChanged(mSelectedPosition);
+                if (mConversationClickListener == null) return;;
                 updateSelectedItem(position);
                 if (Log.isPerfLoggable()) {
                     Log.perf("Conversation ViewHolder onClick");
@@ -110,6 +105,10 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mLayerClient.registerEventListener(mIdentityEventListener);
     }
 
+    /**
+     * Updates the mSelectedPosition marker to the Position passed in the params.  Notifs adapter that the old item that was selected has changed, and that the new item that is selected has changed.
+     * @param position the position of the currently selected item.
+     */
     private void updateSelectedItem(int position) {
         notifyItemChanged(mSelectedPosition);
         mSelectedPosition = position;
