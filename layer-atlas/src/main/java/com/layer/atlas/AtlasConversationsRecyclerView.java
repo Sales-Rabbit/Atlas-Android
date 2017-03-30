@@ -143,9 +143,6 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         return this;
     }
 
-    public void setDateTextColor(int dateTextColor) {
-        conversationStyle.setDateTextColor(dateTextColor);
-    }
 
     /**
      * Convenience pass-through to this list's AtlasConversationsAdapter.

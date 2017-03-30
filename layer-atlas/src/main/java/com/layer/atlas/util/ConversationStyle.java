@@ -42,7 +42,6 @@ public final class ConversationStyle {
         mDateTextColor = builder.dateTextColor;
         mAvatarStyle = builder.avatarStyle;
     }
-    public void setDateTextColor(int dateTextColor) { this.mDateTextColor = dateTextColor; }
     public void setTitleTextTypeface(Typeface titleTextTypeface) {
         this.mTitleTextTypeface = titleTextTypeface;
     }
