@@ -70,6 +70,12 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
 
         return this;
     }
+    /**
+     * programmatically clicks on the first item (0 index) in the recyclerView.
+     */
+    public void defaultSelectFirstItem() {
+        mAdapter.defaultSelectFirstItem();
+    }
 
     @Override
     public void setAdapter(Adapter adapter) {

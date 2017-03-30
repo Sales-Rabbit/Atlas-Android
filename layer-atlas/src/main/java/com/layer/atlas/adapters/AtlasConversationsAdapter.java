@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.layer.atlas.AtlasAvatar;
+import com.layer.atlas.AtlasConversationsRecyclerView;
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.messagetypes.generic.GenericCellFactory;
@@ -53,6 +54,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
 
     protected Set<AtlasCellFactory> mCellFactories;
     private Set<AtlasCellFactory> mDefaultCellFactories;
+
+    protected AtlasConversationsRecyclerView mRecyclerView;
 
     /**
      * The position of the selected item.  It is defaulted to -1 as we do not want to select any items by default.
@@ -132,6 +135,18 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
      */
     public void onDestroy() {
         mLayerClient.unregisterEventListener(mIdentityEventListener);
+    }
+
+    /**
+     * programmatically clicks on the first item (0 index) in the recyclerView.
+     */
+    public void defaultSelectFirstItem() {
+        ViewHolder tempView = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(0);
+        tempView.itemView.performClick();
+    }
+
+    public void setRecyclerView(AtlasConversationsRecyclerView recyclerView) {
+        this.mRecyclerView = recyclerView;
     }
 
     //==============================================================================================
@@ -302,7 +317,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemChanged(RecyclerViewController controller, int position) {
         notifyItemChanged(position);
-
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemChanged. Position: " + position);
         }
@@ -321,10 +335,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     public void onQueryItemInserted(RecyclerViewController controller, int position) {
         syncInitialMessages(position, 1);
         notifyItemInserted(position);
-        if (mSelectedPosition == position) {
+        if(mSelectedPosition >= position) {
             updateSelectedItem(mSelectedPosition + 1);
-        } else if(mSelectedPosition > position) {
-            updateSelectedItem(mSelectedPosition - 1);
         }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemInserted. Position: " + position);
