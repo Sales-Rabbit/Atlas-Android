@@ -44,18 +44,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Util {
-    private static final String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
+
     private static final int TIME_HOURS_24 = 24 * 60 * 60 * 1000;
     private static final SimpleDateFormat DAY_OF_WEEK = new SimpleDateFormat("EEE, LLL dd,", Locale.US);
-//    private static CustomTitleMethod customTitleMethod = null;
 
-//    public static void setCustomTitleMethod(CustomTitleMethod listenerToSet) {
-//        customTitleMethod = listenerToSet;
-//    }
-//
-//    public interface CustomTitleMethod {
-//        String getConversationTitle(LayerClient client, Conversation conversation);
-//    }
     /**
      * Returns the app version name.
      *
@@ -75,15 +67,6 @@ public class Util {
         manager.setPrimaryClip(clipData);
     }
 
-
-
-    public static void setConversationMetadataTitle(Conversation conversation, String title) {
-        if (title == null || title.trim().isEmpty()) {
-            conversation.removeMetadataAtKeyPath(METADATA_KEY_CONVERSATION_TITLE);
-        } else {
-            conversation.putMetadataAtKeyPath(METADATA_KEY_CONVERSATION_TITLE, title.trim());
-        }
-    }
 
     public static String getInitials(Identity user) {
         String first = user.getFirstName();

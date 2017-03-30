@@ -15,6 +15,8 @@ import java.util.Set;
  */
 
 public class ConversationFormatter {
+    private static final String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
+
     public  String getConversationTitle(LayerClient client, Conversation conversation) {
         return getConversationTitle(client, conversation, conversation.getParticipants());
     }
@@ -36,8 +38,16 @@ public class ConversationFormatter {
     }
 
     public  String getConversationMetadataTitle(Conversation conversation) {
-        String metadataTitle = (String) conversation.getMetadata().get(Util.getMetadataKeyConversationTitle());
+        String metadataTitle = (String) conversation.getMetadata().get(METADATA_KEY_CONVERSATION_TITLE);
         if (metadataTitle != null && !metadataTitle.trim().isEmpty()) return metadataTitle.trim();
         return null;
+    }
+
+    public static void setConversationMetadataTitle(Conversation conversation, String title) {
+        if (title == null || title.trim().isEmpty()) {
+            conversation.removeMetadataAtKeyPath(METADATA_KEY_CONVERSATION_TITLE);
+        } else {
+            conversation.putMetadataAtKeyPath(METADATA_KEY_CONVERSATION_TITLE, title.trim());
+        }
     }
 }
