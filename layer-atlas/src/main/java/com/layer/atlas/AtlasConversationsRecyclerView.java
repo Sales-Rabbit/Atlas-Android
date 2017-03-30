@@ -84,10 +84,6 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         mAdapter.defaultSelectFirstItem();
     }
 
-    public void selectItem(int index, Uri convoId) {
-        mAdapter.selectItem(index, convoId);
-    }
-
     @Override
     public void setAdapter(Adapter adapter) {
         throw new RuntimeException("AtlasConversationsRecyclerView sets its own Adapter");
