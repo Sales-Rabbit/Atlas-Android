@@ -310,8 +310,5 @@ public class Util {
 
         void onDeauthenticationFailed(LayerClient client, String reason);
     }
-
-    public static String getMetadataKeyConversationTitle() {
-        return METADATA_KEY_CONVERSATION_TITLE;
-    }
+    
 }
