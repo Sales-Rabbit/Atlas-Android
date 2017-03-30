@@ -17,6 +17,7 @@ import com.layer.atlas.messagetypes.location.LocationCellFactory;
 import com.layer.atlas.messagetypes.singlepartimage.SinglePartImageCellFactory;
 import com.layer.atlas.messagetypes.text.TextCellFactory;
 import com.layer.atlas.messagetypes.threepartimage.ThreePartImageCellFactory;
+import com.layer.atlas.util.ConversationFormatter;
 import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.IdentityRecyclerViewEventListener;
 import com.layer.atlas.util.Log;
@@ -58,18 +59,21 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     protected Set<AtlasCellFactory> mCellFactories;
     private Set<AtlasCellFactory> mDefaultCellFactories;
 
+    protected ConversationFormatter mConversationFormatter;
+
 
     /**
      * The position of the selected item.  It is defaulted to -1 as we do not want to select any items by default.
      */
     private static int mSelectedPosition;
 
-    public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso) {
-        this(context, client, picasso, null);
+    public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso, ConversationFormatter conversationFormatter) {
+        this(context, client, picasso, null, conversationFormatter);
     }
 
-    public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso, Collection<String> updateAttributes) {
+    public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso, Collection<String> updateAttributes, ConversationFormatter conversationFormatter) {
         mSelectedPosition = -1;
+        mConversationFormatter = conversationFormatter;
         Query<Conversation> query = Query.builder(Conversation.class)
                 /* Only show conversations we're still a member of */
                 .predicate(new Predicate(Conversation.Property.PARTICIPANT_COUNT, Predicate.Operator.GREATER_THAN, 1))
@@ -202,6 +206,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
 
+    public void setConversationFormatter(ConversationFormatter mConversationFormatter) {
+        this.mConversationFormatter = mConversationFormatter;
+    }
+
+
     //==============================================================================================
     // Adapter
     //==============================================================================================
@@ -233,7 +242,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mIdentityEventListener.addIdentityPosition(position, participants);
 
         viewHolder.mAvatarCluster.setParticipants(participants);
-        viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, conversation, participants));
+        viewHolder.mTitleView.setText(mConversationFormatter.getConversationTitle(mLayerClient, conversation, participants));
         viewHolder.applyStyle(conversation.getTotalUnreadMessageCount() > 0);
         if (lastMessage == null) {
             viewHolder.mMessageView.setText(null);

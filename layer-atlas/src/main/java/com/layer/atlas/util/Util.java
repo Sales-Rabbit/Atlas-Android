@@ -47,15 +47,15 @@ public class Util {
     private static final String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
     private static final int TIME_HOURS_24 = 24 * 60 * 60 * 1000;
     private static final SimpleDateFormat DAY_OF_WEEK = new SimpleDateFormat("EEE, LLL dd,", Locale.US);
-    private static CustomTitleMethod customTitleMethod = null;
+//    private static CustomTitleMethod customTitleMethod = null;
 
-    public static void setCustomTitleMethod(CustomTitleMethod listenerToSet) {
-        customTitleMethod = listenerToSet;
-    }
-
-    public interface CustomTitleMethod {
-        String getConversationTitle(LayerClient client, Conversation conversation);
-    }
+//    public static void setCustomTitleMethod(CustomTitleMethod listenerToSet) {
+//        customTitleMethod = listenerToSet;
+//    }
+//
+//    public interface CustomTitleMethod {
+//        String getConversationTitle(LayerClient client, Conversation conversation);
+//    }
     /**
      * Returns the app version name.
      *
@@ -75,31 +75,7 @@ public class Util {
         manager.setPrimaryClip(clipData);
     }
 
-    public static String getConversationTitle(LayerClient client, Conversation conversation) {
-        return getConversationTitle(client, conversation, conversation.getParticipants());
-    }
 
-
-    public static String getConversationTitle(LayerClient client, Conversation conversation, Set<Identity> participants) {
-        String metadataTitle = getConversationMetadataTitle(conversation);
-        if (metadataTitle != null) return metadataTitle.trim();
-
-        StringBuilder sb = new StringBuilder();
-        Identity authenticatedUser = client.getAuthenticatedUser();
-        for (Identity participant : participants) {
-            if (participant.equals(authenticatedUser)) continue;
-            String initials = participants.size() > 2 ? getInitials(participant) : Util.getDisplayName(participant);
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(initials);
-        }
-        return sb.toString();
-    }
-
-    public static String getConversationMetadataTitle(Conversation conversation) {
-        String metadataTitle = (String) conversation.getMetadata().get(METADATA_KEY_CONVERSATION_TITLE);
-        if (metadataTitle != null && !metadataTitle.trim().isEmpty()) return metadataTitle.trim();
-        return null;
-    }
 
     public static void setConversationMetadataTitle(Conversation conversation, String title) {
         if (title == null || title.trim().isEmpty()) {
@@ -350,5 +326,9 @@ public class Util {
         void onDeauthenticationSuccess(LayerClient client);
 
         void onDeauthenticationFailed(LayerClient client, String reason);
+    }
+
+    public static String getMetadataKeyConversationTitle() {
+        return METADATA_KEY_CONVERSATION_TITLE;
     }
 }
