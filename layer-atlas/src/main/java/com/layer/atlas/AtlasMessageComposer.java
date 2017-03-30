@@ -80,15 +80,7 @@ public class AtlasMessageComposer extends FrameLayout {
         super(context);
         initAttachmentMenu(context, null, 0);
     }
-    public void setCursorColor(int cursorColor) {
-                this.mCursorColor = cursorColor;
-                EditTextUtil.setCursorDrawableColor(mMessageEditText, mCursorColor);
-            }
 
-                public void setUnderlineColor(int underlineColor) {
-                this.mUnderlineColor = underlineColor;
-                EditTextUtil.setUnderlineColor(mMessageEditText, mUnderlineColor);
-            }
     public AtlasMessageComposer(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
