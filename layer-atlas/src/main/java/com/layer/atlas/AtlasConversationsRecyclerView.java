@@ -77,6 +77,12 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
 
         return this;
     }
+    /**
+     * programmatically clicks on the first item (0 index) in the recyclerView.
+     */
+    public void defaultSelectFirstItem() {
+        mAdapter.defaultSelectFirstItem();
+    }
 
     public void selectItem(int index, Uri convoId) {
         mAdapter.selectItem(index, convoId);

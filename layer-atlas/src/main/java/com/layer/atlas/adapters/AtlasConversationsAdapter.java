@@ -58,6 +58,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     protected Set<AtlasCellFactory> mCellFactories;
     private Set<AtlasCellFactory> mDefaultCellFactories;
 
+
     /**
      * The position of the selected item.  It is defaulted to -1 as we do not want to select any items by default.
      */
@@ -85,7 +86,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mViewHolderClickListener = new ViewHolder.OnClickListener() {
             @Override
             public void onClick(ViewHolder viewHolder, int position) {
-                if (mConversationClickListener == null) return;;
+                if (mConversationClickListener == null) return;
+
                 updateSelectedItem(position);
                 if (Log.isPerfLoggable()) {
                     Log.perf("Conversation ViewHolder onClick");
@@ -138,13 +140,16 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mLayerClient.unregisterEventListener(mIdentityEventListener);
     }
 
-    public void selectItem(int index, Uri convoId) { //todo remove this item, and have the news/announcement sublcass this class and add this method to it.
-        ViewHolder tempView = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(index);
-        if (tempView.getConversation().getId().toString().equals(convoId.toString())) {
-            tempView.itemView.performClick();
-        } else {
-            mRecyclerView.findViewHolderForAdapterPosition(index+1).itemView.performClick();
-        }
+    /**
+     * programmatically clicks on the first item (0 index) in the recyclerView.
+     */
+    public void defaultSelectFirstItem() {
+        ViewHolder tempView = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(0);
+        tempView.itemView.performClick();
+    }
+
+    public void setRecyclerView(AtlasConversationsRecyclerView recyclerView) {
+        this.mRecyclerView = recyclerView;
     }
 
     //==============================================================================================
@@ -217,7 +222,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         Conversation conversation = mQueryController.getItem(position);
         Message lastMessage = conversation.getLastMessage();
         Context context = viewHolder.itemView.getContext();
+
         viewHolder.itemView.setActivated(mSelectedPosition == position);
+
         viewHolder.setConversation(conversation);
         Set<Identity> participants = conversation.getParticipants();
         participants.remove(mLayerClient.getAuthenticatedUser());
@@ -312,9 +319,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemChanged(RecyclerViewController controller, int position) {
         notifyItemChanged(position);
-        if (position == 0) {
-            mRecyclerView.scrollToPosition(position);
-        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemChanged. Position: " + position);
         }
@@ -335,13 +339,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     public void onQueryItemInserted(RecyclerViewController controller, int position) {
         syncInitialMessages(position, 1);
         notifyItemInserted(position);
-        if (mSelectedPosition == position) {
+        if(mSelectedPosition >= position) {
             updateSelectedItem(mSelectedPosition + 1);
-        } else if(mSelectedPosition > position) {
-            updateSelectedItem(mSelectedPosition - 1);
-        }
-        if (position == 0) {
-            mRecyclerView.scrollToPosition(position);
         }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemInserted. Position: " + position);
@@ -352,11 +351,8 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
         syncInitialMessages(positionStart, itemCount);
         notifyItemRangeInserted(positionStart, itemCount);
-         if(mSelectedPosition >= positionStart) {
+        if(mSelectedPosition >= positionStart) {
             updateSelectedItem(mSelectedPosition + itemCount);
-        }
-        if (positionStart == 0) {
-            mRecyclerView.scrollToPosition(positionStart);
         }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemRangeInserted. Position start: " + positionStart + " Count: " + itemCount);
@@ -397,17 +393,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         } else if(mSelectedPosition == toPosition) {
             updateSelectedItem(mSelectedPosition - 1);
         }
-        if (toPosition == 0) {
-            mRecyclerView.scrollToPosition(toPosition);
-        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemMoved. From: " + fromPosition + " To: " + toPosition);
         }
     }
 
-    public void setRecyclerView(AtlasConversationsRecyclerView recyclerView) {
-        this.mRecyclerView = recyclerView;
-    }
 
     //==============================================================================================
     // Inner classes
