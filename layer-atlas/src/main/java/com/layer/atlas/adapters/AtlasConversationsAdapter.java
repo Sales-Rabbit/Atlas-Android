@@ -311,6 +311,14 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         return mDefaultCellFactories;
     }
 
+    public int getSelectedPosition() {
+        return mSelectedPosition;
+    }
+
+    public void setSelectedPosition(int position) {
+        mSelectedPosition = position;
+    }
+
     //==============================================================================================
     // UI update callbacks
     //==============================================================================================
