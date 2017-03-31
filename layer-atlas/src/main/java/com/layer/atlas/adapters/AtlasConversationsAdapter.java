@@ -1,7 +1,6 @@
 package com.layer.atlas.adapters;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -336,9 +335,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     @Override
     public void onQueryItemRangeChanged(RecyclerViewController controller, int positionStart, int itemCount) {
         notifyItemRangeChanged(positionStart, itemCount);
-        if (positionStart == 0) {
-            mRecyclerView.scrollToPosition(positionStart);
-        }
         if (Log.isPerfLoggable()) {
             Log.perf("Conversations adapter - onQueryItemRangeChanged. Position start: " + positionStart + " Count: " + itemCount);
         }
@@ -417,7 +413,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         public final static int RESOURCE_ID = R.layout.atlas_conversation_item;
 
         // View cache
-        public TextView mTitleView;
+        protected TextView mTitleView;
         protected AtlasAvatar mAvatarCluster;
         protected TextView mMessageView;
         protected TextView mTimeView;

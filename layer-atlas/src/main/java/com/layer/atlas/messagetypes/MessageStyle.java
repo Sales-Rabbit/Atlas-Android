@@ -28,13 +28,6 @@ public class MessageStyle {
         mOtherTextSize = builder.otherTextSize;
         setOtherTextTypeface(builder.otherTextTypeface);
     }
-    public void setMyBubbleColor(int myBubbleColor) { this.mMyBubbleColor = myBubbleColor; }
-
-    public void setMyTextColor(int myTextColor) { mMyTextColor = myTextColor; }
-
-    public void setOtherBubbleColor(int otherBubbleColor) { this.mOtherBubbleColor = otherBubbleColor; }
-
-    public void setOtherTextColor(int otherTextColor) { this.mOtherTextColor = otherTextColor; }
 
     public void setMyTextTypeface(Typeface myTextTypeface) {
         this.mMyTextTypeface = myTextTypeface;
