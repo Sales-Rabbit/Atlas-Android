@@ -72,17 +72,15 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
 
         mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso, new ConversationFormatter());
         mAdapter.setStyle(conversationStyle);
-        mAdapter.setRecyclerView(this);
         super.setAdapter(mAdapter);
         refresh();
 
         return this;
     }
-    /**
-     * programmatically clicks on the first item (0 index) in the recyclerView.
-     */
-    public void defaultSelectFirstItem() {
-        mAdapter.defaultSelectFirstItem();
+
+    @Override
+    public AtlasConversationsAdapter getAdapter() {
+        return mAdapter;
     }
 
     @Override
