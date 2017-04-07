@@ -55,8 +55,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     protected Set<AtlasCellFactory> mCellFactories;
     private Set<AtlasCellFactory> mDefaultCellFactories;
 
-    protected AtlasConversationsRecyclerView mRecyclerView;
-
     /**
      * The position of the selected item.  It is defaulted to -1 as we do not want to select any items by default.
      */
@@ -83,9 +81,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
         mViewHolderClickListener = new ViewHolder.OnClickListener() {
             @Override
-            public void onClick(ViewHolder viewHolder, int position) {
+            public void onClick(ViewHolder viewHolder) {
                 if (mConversationClickListener == null) return;
-                updateSelectedItem(position);
+                updateSelectedItem(viewHolder.getAdapterPosition());
                 if (Log.isPerfLoggable()) {
                     Log.perf("Conversation ViewHolder onClick");
                 }
@@ -106,11 +104,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
     /**
-     * Updates the mSelectedPosition marker to the Position passed in the params.  Notifs adapter that the old item that was selected has changed, and that the new item that is selected has changed.
+     * Updates the selected position marker to the Position passed in the params.  Notifs adapter that the old item that was selected has changed, and that the new item that is selected has changed.
      * @param position the position of the currently selected item.
      */
     private void updateSelectedItem(int position) {
-        notifyItemChanged(mSelectedPosition);
+//        notifyItemChanged(mSelectedPosition);
         mSelectedPosition = position;
         notifyItemChanged(mSelectedPosition);
     }
@@ -138,15 +136,10 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
     /**
-     * programmatically clicks on the first item (0 index) in the recyclerView.
+     * Programmatically selects the first item (0 index) in the recyclerView.
      */
     public void defaultSelectFirstItem() {
-        ViewHolder tempView = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(0);
-        tempView.itemView.performClick();
-    }
-
-    public void setRecyclerView(AtlasConversationsRecyclerView recyclerView) {
-        this.mRecyclerView = recyclerView;
+        updateSelectedItem(0);
     }
 
     //==============================================================================================
@@ -459,7 +452,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         @Override
         public void onClick(View v) {
             if (mClickListener == null) return;
-            mClickListener.onClick(this, getLayoutPosition());
+            mClickListener.onClick(this);
         }
 
         @Override
@@ -469,7 +462,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         }
 
         interface OnClickListener {
-            void onClick(ViewHolder viewHolder, int position);
+            void onClick(ViewHolder viewHolder);
 
             boolean onLongClick(ViewHolder viewHolder);
         }
