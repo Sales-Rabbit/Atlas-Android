@@ -104,11 +104,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     }
 
     /**
-     * Updates the selected position marker to the Position passed in the params.  Notifs adapter that the old item that was selected has changed, and that the new item that is selected has changed.
+     * Updates the mSelectedPosition marker to the Position passed in the params.  Notifies adapter about the change.
      * @param position the position of the currently selected item.
      */
     private void updateSelectedItem(int position) {
-//        notifyItemChanged(mSelectedPosition);
+        notifyItemChanged(mSelectedPosition);
         mSelectedPosition = position;
         notifyItemChanged(mSelectedPosition);
     }
