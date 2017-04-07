@@ -113,8 +113,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
      * @param position the position of the currently selected item.
      */
     private void updateSelectedItem(int position) {
-        notifyItemChanged(mSelectedPosition);
+        int oldSelectedPosition = mSelectedPosition;
         mSelectedPosition = position;
+        notifyItemChanged(oldSelectedPosition);
         notifyItemChanged(mSelectedPosition);
     }
 
