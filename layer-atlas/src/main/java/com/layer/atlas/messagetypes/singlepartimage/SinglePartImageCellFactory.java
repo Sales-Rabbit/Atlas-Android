@@ -108,7 +108,13 @@ public class SinglePartImageCellFactory extends AtlasCellFactory<SinglePartImage
     @Override
     public PartId parseContent(LayerClient layerClient, Message message) {
         for (MessagePart part : message.getMessageParts()) {
-            if (part.getMimeType().startsWith("image/")) return new PartId(part.getId());
+            String mimeType = part.getMimeType();
+            if (mimeType != null && mimeType.startsWith("image/")) {
+                Uri id = part.getId();
+                if (id != null) {
+                    return new PartId(id);
+                }
+            }
         }
         return null;
     }
