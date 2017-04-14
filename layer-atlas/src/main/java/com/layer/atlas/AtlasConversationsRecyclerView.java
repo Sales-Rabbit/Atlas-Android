@@ -31,7 +31,9 @@ import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
+import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.util.AvatarStyle;
+import com.layer.atlas.util.ConversationFormatter;
 import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.itemanimators.NoChangeAnimator;
 import com.layer.atlas.util.views.SwipeableItem;
@@ -68,28 +70,27 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         // Don't flash items when changing content
         setItemAnimator(new NoChangeAnimator());
 
-        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso);
+        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso, new ConversationFormatter());
         mAdapter.setStyle(conversationStyle);
-        mAdapter.setRecyclerView(this);
         super.setAdapter(mAdapter);
         refresh();
 
         return this;
     }
 
-    public void setItemSelectedColor(@ColorInt int unselectedColor, @ColorInt int selectedColor) {
-        mAdapter.setItemSelectedColor(unselectedColor,selectedColor);
-    }
-    public void deSelectCurrentSelection() {
-        mAdapter.deSelectCurrentSelection();
-    }
-    public void selectItem(int index, Uri convoId) {
-        mAdapter.selectItem(index, convoId);
+    @Override
+    public AtlasConversationsAdapter getAdapter() {
+        return mAdapter;
     }
 
     @Override
     public void setAdapter(Adapter adapter) {
         throw new RuntimeException("AtlasConversationsRecyclerView sets its own Adapter");
+    }
+
+    public AtlasConversationsRecyclerView addCellFactories (AtlasCellFactory... cellFactories) {
+        mAdapter.addCellFactories(cellFactories);
+        return this;
     }
 
     /**
@@ -140,9 +141,6 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         return this;
     }
 
-    public void setDateTextColor(int dateTextColor) {
-        conversationStyle.setDateTextColor(dateTextColor);
-    }
 
     /**
      * Convenience pass-through to this list's AtlasConversationsAdapter.

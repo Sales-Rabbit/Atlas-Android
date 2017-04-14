@@ -126,6 +126,9 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
      * @return This AtlasMessagesRecyclerView.
      */
     public AtlasMessagesRecyclerView setConversation(Conversation conversation) {
+        if (conversation != null) {
+            mAdapter.setReadReceiptsEnabled(conversation.isReadReceiptsEnabled());
+        }
         mAdapter.setQuery(Query.builder(Message.class)
                 .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
                 .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.ASCENDING))
@@ -193,6 +196,28 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
     }
 
     /**
+     * Convenience pass-through to this list's AtlasMessagesAdapter.
+     *
+     * @see AtlasMessagesAdapter#getShouldShowAvatarInOneOnOneConversations()
+     */
+
+    public boolean getShouldShowAvatarInOneOnOneConversations() {
+        return mAdapter.getShouldShowAvatarInOneOnOneConversations();
+    }
+
+    /**
+     * Convenience pass-through to this list's AtlasMessagesAdapter.
+     *
+     * @see AtlasMessagesAdapter#setShouldShowAvatarInOneOnOneConversations(boolean)
+     */
+
+    public AtlasMessagesRecyclerView setShouldShowAvatarInOneOnOneConversations(boolean shouldShowAvatarInOneOnOneConversations) {
+        mAdapter.setShouldShowAvatarInOneOnOneConversations(shouldShowAvatarInOneOnOneConversations);
+        return this;
+    }
+
+
+    /**
      * Scrolls if the user is at the end
      */
     private void autoScroll() {
@@ -226,12 +251,4 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
         ta.recycle();
         this.mMessageStyle = messageStyleBuilder.build();
     }
-
-    public void setMyBubbleColor(int myBubbleColor) { mMessageStyle.setMyBubbleColor(myBubbleColor); }
-
-    public void setMyTextColor(int myTextColor) { mMessageStyle.setMyTextColor(myTextColor); }
-
-    public void setOtherBubbleColor(int otherBubbleColor) { mMessageStyle.setOtherBubbleColor(otherBubbleColor); }
-
-    public void setOtherTextColor(int otherTextColor) { mMessageStyle.setOtherTextColor(otherTextColor); }
 }
