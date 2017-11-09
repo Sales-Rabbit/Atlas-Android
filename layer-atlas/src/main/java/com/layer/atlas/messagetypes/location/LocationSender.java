@@ -18,9 +18,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AttachmentSender;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Log;
+import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessageOptions;
 import com.layer.sdk.messaging.MessagePart;
@@ -71,7 +72,7 @@ public class LocationSender extends AttachmentSender {
         // If the correct Google Play Services are available, connect and return. 
         if (errorCode == ConnectionResult.SUCCESS) {
             GoogleApiCallbacks googleApiCallbacks = new GoogleApiCallbacks();
-            sGoogleApiClient = new GoogleApiClient.Builder(activity)
+            sGoogleApiClient = new GoogleApiClient.Builder(activity.getApplicationContext())
                     .addConnectionCallbacks(googleApiCallbacks)
                     .addOnConnectionFailedListener(googleApiCallbacks)
                     .addApi(LocationServices.API)
@@ -135,7 +136,7 @@ public class LocationSender extends AttachmentSender {
         if (activity == null) return false;
         if (Log.isLoggable(Log.VERBOSE)) Log.v("Sending location");
         if (checkSelfPermission(activity, PERMISSION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(activity, new String[]{PERMISSION}, PERMISSION_REQUEST_CODE);
+            requestPermissions(activity, PERMISSION_REQUEST_CODE, PERMISSION);
             return true;
         }
         return getFreshLocation(new SenderLocationListener(this));
@@ -158,13 +159,17 @@ public class LocationSender extends AttachmentSender {
         @Override
         public void onLocationChanged(Location location) {
             if (Log.isLoggable(Log.VERBOSE)) Log.v("Got fresh location");
+
+            if (Log.isPerfLoggable()) {
+                Log.perf("LocationSender is attempting to send a message");
+            }
             LocationSender sender = mLocationSenderReference.get();
             if (sender == null) return;
             Context context = sender.getContext();
             LayerClient client = sender.getLayerClient();
-            ParticipantProvider participantProvider = sender.getParticipantProvider();
             try {
-                String myName = participantProvider.getParticipant(client.getAuthenticatedUserId()).getName();
+                Identity me = client.getAuthenticatedUser();
+                String myName = me == null ? "" : Util.getDisplayName(me);
                 JSONObject o = new JSONObject()
                         .put(LocationCellFactory.KEY_LATITUDE, location.getLatitude())
                         .put(LocationCellFactory.KEY_LONGITUDE, location.getLongitude())

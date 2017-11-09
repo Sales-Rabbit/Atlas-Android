@@ -15,7 +15,6 @@ import android.widget.ImageView;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.imagepopup.AtlasImagePopupActivity;
 import com.layer.atlas.util.picasso.transformations.RoundedTransform;
 import com.layer.sdk.LayerClient;
@@ -25,32 +24,31 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-import java.lang.ref.WeakReference;
-
 /**
  * BasicImage handles non-ThreePartImage images.  It relies on the ThreePartImage RequestHandler and does not handle image rotation.
  */
 public class SinglePartImageCellFactory extends AtlasCellFactory<SinglePartImageCellFactory.CellHolder, SinglePartImageCellFactory.PartId> implements View.OnClickListener {
     private static final String PICASSO_TAG = SinglePartImageCellFactory.class.getSimpleName();
     private static final int PLACEHOLDER = com.layer.atlas.R.drawable.atlas_message_item_cell_placeholder;
+    private static final int CACHE_SIZE_BYTES = 256 * 1024;
 
-    private final WeakReference<Activity> mActivity;
     private final LayerClient mLayerClient;
     private final Picasso mPicasso;
-    private final Transformation mTransform;
+    private Transformation mTransform;
+
+    public SinglePartImageCellFactory(LayerClient mLayerClient, Picasso mPicasso) {
+        super(CACHE_SIZE_BYTES);
+        this.mLayerClient = mLayerClient;
+        this.mPicasso = mPicasso;
+    }
 
     public SinglePartImageCellFactory(Activity activity, LayerClient layerClient, Picasso picasso) {
-        super(256 * 1024);
-        mActivity = new WeakReference<Activity>(activity);
-        mLayerClient = layerClient;
-        mPicasso = picasso;
-        float radius = activity.getResources().getDimension(com.layer.atlas.R.dimen.atlas_message_item_cell_radius);
-        mTransform = new RoundedTransform(radius);
+        this(layerClient, picasso);
     }
 
     @Override
     public boolean isBindable(Message message) {
-        return SinglePartImageCellFactory.isType(message);
+        return isType(message);
     }
 
     @Override
@@ -65,7 +63,7 @@ public class SinglePartImageCellFactory extends AtlasCellFactory<SinglePartImage
         cellHolder.mProgressBar.show();
         mPicasso.load(index.mId).tag(PICASSO_TAG).placeholder(PLACEHOLDER)
                 .centerInside().resize(specs.maxWidth, specs.maxHeight).onlyScaleDown()
-                .transform(mTransform).into(cellHolder.mImageView, new Callback() {
+                .transform(getTransform(cellHolder.mImageView.getContext())).into(cellHolder.mImageView, new Callback() {
             @Override
             public void onSuccess() {
                 cellHolder.mProgressBar.hide();
@@ -81,15 +79,15 @@ public class SinglePartImageCellFactory extends AtlasCellFactory<SinglePartImage
     @Override
     public void onClick(View v) {
         AtlasImagePopupActivity.init(mLayerClient);
-        Activity activity = mActivity.get();
-        if (activity == null) return;
-        Intent intent = new Intent(activity, AtlasImagePopupActivity.class);
+        Context context = v.getContext();
+        if (context == null) return;
+        Intent intent = new Intent(context, AtlasImagePopupActivity.class);
         intent.putExtra("fullId", ((PartId) v.getTag()).mId);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            activity.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(activity, v, "image").toBundle());
+        if (Build.VERSION.SDK_INT >= 21 && context instanceof Activity) {
+            context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((Activity) context, v, "image").toBundle());
         } else {
-            activity.startActivity(intent);
+            context.startActivity(intent);
         }
     }
 
@@ -107,29 +105,41 @@ public class SinglePartImageCellFactory extends AtlasCellFactory<SinglePartImage
     }
 
     @Override
-    public PartId parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public PartId parseContent(LayerClient layerClient, Message message) {
         for (MessagePart part : message.getMessageParts()) {
             if (part.getMimeType().startsWith("image/")) return new PartId(part.getId());
         }
         return null;
     }
 
+    @Override
+    public boolean isType(Message message) {
+        return message.getMessageParts().size() == 1
+                && message.getMessageParts().get(0).getMimeType().startsWith("image/");
+    }
 
-    //==============================================================================================
-    // Static utilities
-    //==============================================================================================
-
-    public static boolean isType(Message message) {
-        for (MessagePart part : message.getMessageParts()) {
-            if (part.getMimeType().startsWith("image/")) return true;
+    @Override
+    public String getPreviewText(Context context, Message message) {
+        if (isType(message)) {
+            return context.getString(R.string.atlas_message_preview_image);
         }
-        return false;
+        else {
+            throw new IllegalArgumentException("Message is not of the correct type - SinglePartImage");
+        }
     }
 
-    public static String getMessagePreview(Context context, Message message) {
-        return context.getString(R.string.atlas_message_preview_image);
-    }
+    //==============================================================================================
+    // private methods
+    //==============================================================================================
 
+    private Transformation getTransform(Context context) {
+        if (mTransform == null) {
+            float radius = context.getResources().getDimension(com.layer.atlas.R.dimen.atlas_message_item_cell_radius);
+            mTransform = new RoundedTransform(radius);
+        }
+
+        return mTransform;
+    }
 
     //==============================================================================================
     // Inner classes

@@ -18,16 +18,22 @@ package com.layer.atlas;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.support.annotation.ColorInt;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
-import com.layer.atlas.provider.ParticipantProvider;
+import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.util.AvatarStyle;
+import com.layer.atlas.util.ConversationFormatter;
 import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.itemanimators.NoChangeAnimator;
 import com.layer.atlas.util.views.SwipeableItem;
@@ -54,16 +60,17 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         super(context);
     }
 
-    public AtlasConversationsRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
+    public AtlasConversationsRecyclerView init(LayerClient layerClient, Picasso picasso) {
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
         manager.setStackFromEnd(false);
         setLayoutManager(manager);
 
         // Don't flash items when changing content
         setItemAnimator(new NoChangeAnimator());
 
-        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, participantProvider, picasso);
+        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso, new ConversationFormatter());
         mAdapter.setStyle(conversationStyle);
         super.setAdapter(mAdapter);
         refresh();
@@ -72,8 +79,27 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
     }
 
     @Override
+    public AtlasConversationsAdapter getAdapter() {
+        return mAdapter;
+    }
+
+    @Override
     public void setAdapter(Adapter adapter) {
         throw new RuntimeException("AtlasConversationsRecyclerView sets its own Adapter");
+    }
+
+    public AtlasConversationsRecyclerView addCellFactories (AtlasCellFactory... cellFactories) {
+        mAdapter.addCellFactories(cellFactories);
+        return this;
+    }
+
+    /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        if (mAdapter != null) {
+            mAdapter.onDestroy();
+        }
     }
 
     /**
@@ -114,6 +140,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         }
         return this;
     }
+
 
     /**
      * Convenience pass-through to this list's AtlasConversationsAdapter.

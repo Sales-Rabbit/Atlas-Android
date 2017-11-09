@@ -27,7 +27,6 @@ import android.view.View;
 import com.layer.atlas.adapters.AtlasMessagesAdapter;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.messagetypes.MessageStyle;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.itemanimators.NoChangeAnimator;
 import com.layer.atlas.util.views.SwipeableItem;
 import com.layer.sdk.LayerClient;
@@ -58,13 +57,13 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
         super(context);
     }
 
-    public AtlasMessagesRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
+    public AtlasMessagesRecyclerView init(LayerClient layerClient, Picasso picasso) {
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         mLayoutManager.setStackFromEnd(true);
         setLayoutManager(mLayoutManager);
 
         // Create an adapter that auto-scrolls if we're already at the bottom
-        mAdapter = new AtlasMessagesAdapter(getContext(), layerClient, participantProvider, picasso)
+        mAdapter = new AtlasMessagesAdapter(getContext(), layerClient, picasso)
                 .setRecyclerView(this)
                 .setOnMessageAppendListener(new AtlasMessagesAdapter.OnMessageAppendListener() {
                     @Override
@@ -96,6 +95,15 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
     }
 
     /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        if (mAdapter != null) {
+            mAdapter.onDestroy();
+        }
+    }
+
+    /**
      * Automatically refresh on resume
      */
     @Override
@@ -118,6 +126,9 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
      * @return This AtlasMessagesRecyclerView.
      */
     public AtlasMessagesRecyclerView setConversation(Conversation conversation) {
+        if (conversation != null) {
+            mAdapter.setReadReceiptsEnabled(conversation.isReadReceiptsEnabled());
+        }
         mAdapter.setQuery(Query.builder(Message.class)
                 .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
                 .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.ASCENDING))
@@ -183,6 +194,28 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
     public View getFooterView() {
         return mAdapter.getFooterView();
     }
+
+    /**
+     * Convenience pass-through to this list's AtlasMessagesAdapter.
+     *
+     * @see AtlasMessagesAdapter#getShouldShowAvatarInOneOnOneConversations()
+     */
+
+    public boolean getShouldShowAvatarInOneOnOneConversations() {
+        return mAdapter.getShouldShowAvatarInOneOnOneConversations();
+    }
+
+    /**
+     * Convenience pass-through to this list's AtlasMessagesAdapter.
+     *
+     * @see AtlasMessagesAdapter#setShouldShowAvatarInOneOnOneConversations(boolean)
+     */
+
+    public AtlasMessagesRecyclerView setShouldShowAvatarInOneOnOneConversations(boolean shouldShowAvatarInOneOnOneConversations) {
+        mAdapter.setShouldShowAvatarInOneOnOneConversations(shouldShowAvatarInOneOnOneConversations);
+        return this;
+    }
+
 
     /**
      * Scrolls if the user is at the end

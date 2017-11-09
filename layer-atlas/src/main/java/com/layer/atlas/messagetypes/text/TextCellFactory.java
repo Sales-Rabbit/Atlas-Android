@@ -6,16 +6,15 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.textservice.TextInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.Participant;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
-import com.layer.sdk.messaging.Actor;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
@@ -26,19 +25,9 @@ public class TextCellFactory extends AtlasCellFactory<TextCellFactory.CellHolder
         super(256 * 1024);
     }
 
-    public static boolean isType(Message message) {
-        return message.getMessageParts().get(0).getMimeType().equals(MIME_TYPE);
-    }
-
-    public static String getMessagePreview(Context context, Message message) {
-        MessagePart part = message.getMessageParts().get(0);
-        // For large text content, the MessagePart may not be downloaded yet.
-        return part.isContentReady() ? new String(part.getData()) : "";
-    }
-
     @Override
     public boolean isBindable(Message message) {
-        return TextCellFactory.isType(message);
+        return isType(message);
     }
 
     @Override
@@ -56,16 +45,15 @@ public class TextCellFactory extends AtlasCellFactory<TextCellFactory.CellHolder
     }
 
     @Override
-    public TextInfo parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public TextInfo parseContent(LayerClient layerClient, Message message) {
         MessagePart part = message.getMessageParts().get(0);
         String text = part.isContentReady() ? new String(part.getData()) : "";
         String name;
-        Actor sender = message.getSender();
-        if (sender.getName() != null) {
-            name = sender.getName() + ": ";
+        Identity sender = message.getSender();
+        if (sender != null) {
+            name = Util.getDisplayName(sender) + ": ";
         } else {
-            Participant participant = participantProvider.getParticipant(sender.getUserId());
-            name = participant == null ? "" : (participant.getName() + ": ");
+            name = "";
         }
         return new TextInfo(text, name);
     }
@@ -75,6 +63,22 @@ public class TextCellFactory extends AtlasCellFactory<TextCellFactory.CellHolder
         cellHolder.mTextView.setText(parsed.getString());
         cellHolder.mTextView.setTag(parsed);
         cellHolder.mTextView.setOnLongClickListener(this);
+    }
+
+    public boolean isType(Message message) {
+        return message.getMessageParts().size() == 1 &&  message.getMessageParts().get(0).getMimeType().equals(MIME_TYPE);
+    }
+
+    @Override
+    public String getPreviewText(Context context, Message message) {
+        if (isType(message)) {
+            MessagePart part = message.getMessageParts().get(0);
+            // For large text content, the MessagePart may not be downloaded yet.
+            return part.isContentReady() ? new String(part.getData()) : "";
+        }
+        else {
+            throw new IllegalArgumentException("Message is not of the correct type - Text");
+        }
     }
 
     /**

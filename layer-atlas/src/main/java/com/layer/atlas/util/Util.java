@@ -19,22 +19,17 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.layer.atlas.BuildConfig;
 import com.layer.atlas.R;
-import com.layer.atlas.messagetypes.generic.GenericCellFactory;
-import com.layer.atlas.messagetypes.location.LocationCellFactory;
-import com.layer.atlas.messagetypes.singlepartimage.SinglePartImageCellFactory;
-import com.layer.atlas.messagetypes.text.TextCellFactory;
-import com.layer.atlas.messagetypes.threepartimage.ThreePartImageCellFactory;
-import com.layer.atlas.provider.Participant;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerAuthenticationListener;
 import com.layer.sdk.listeners.LayerProgressListener;
 import com.layer.sdk.messaging.Conversation;
-import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.MessagePart;
 import com.layer.sdk.query.Queryable;
 
@@ -43,12 +38,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Util {
-    private static final String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
+
     private static final int TIME_HOURS_24 = 24 * 60 * 60 * 1000;
     private static final SimpleDateFormat DAY_OF_WEEK = new SimpleDateFormat("EEE, LLL dd,", Locale.US);
 
@@ -71,74 +67,57 @@ public class Util {
         manager.setPrimaryClip(clipData);
     }
 
-    // TODO: base this on registered types
-    public static String getLastMessageString(Context context, Message message) {
-        if (TextCellFactory.isType(message)) {
-            return TextCellFactory.getMessagePreview(context, message);
-        }
-        if (ThreePartImageCellFactory.isType(message)) {
-            return ThreePartImageCellFactory.getMessagePreview(context, message);
-        }
-        if (LocationCellFactory.isType(message)) {
-            return LocationCellFactory.getMessagePreview(context, message);
-        }
-        if (SinglePartImageCellFactory.isType(message)) {
-            return SinglePartImageCellFactory.getMessagePreview(context, message);
-        }
-        return GenericCellFactory.getPreview(context, message);
-    }
 
-    public static String getConversationTitle(LayerClient client, ParticipantProvider provider, Conversation conversation) {
-        String metadataTitle = getConversationMetadataTitle(conversation);
-        if (metadataTitle != null) return metadataTitle.trim();
-
-        StringBuilder sb = new StringBuilder();
-        String userId = client.getAuthenticatedUserId();
-        for (String participantId : conversation.getParticipants()) {
-            if (participantId.equals(userId)) continue;
-            Participant participant = provider.getParticipant(participantId);
-            if (participant == null) continue;
-            String initials = conversation.getParticipants().size() > 2 ? getInitials(participant) : participant.getName();
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(initials);
-        }
-        return sb.toString().trim();
-    }
-
-    public static String getConversationMetadataTitle(Conversation conversation) {
-        String metadataTitle = (String) conversation.getMetadata().get(METADATA_KEY_CONVERSATION_TITLE);
-        if (metadataTitle != null && !metadataTitle.trim().isEmpty()) return metadataTitle.trim();
-        return null;
-    }
-
-    public static void setConversationMetadataTitle(Conversation conversation, String title) {
-        if (title == null || title.trim().isEmpty()) {
-            conversation.removeMetadataAtKeyPath(METADATA_KEY_CONVERSATION_TITLE);
+    public static String getInitials(Identity user) {
+        String first = user.getFirstName();
+        String last = user.getLastName();
+        if (!TextUtils.isEmpty(first)) {
+            if (!TextUtils.isEmpty(last)) {
+                return getInitials(first) + getInitials(last);
+            }
+            return getInitials(first);
+        } else if (!TextUtils.isEmpty(last)) {
+            return getInitials(last);
         } else {
-            conversation.putMetadataAtKeyPath(METADATA_KEY_CONVERSATION_TITLE, title.trim());
+            return getInitials(user.getDisplayName());
         }
     }
 
-    public static String getInitials(Participant p) {
-        return getInitials(p.getName());
-    }
-
-    public static String getInitials(String fullName) {
-        if(fullName == null || fullName.isEmpty()) return "";
-        if (fullName.contains(" ")) {
-            String[] names = fullName.split(" ");
+    private static String getInitials(String name) {
+        if(TextUtils.isEmpty(name)) return "";
+        if (name.contains(" ")) {
+            String[] nameParts = name.split(" ");
             int count = 0;
             StringBuilder b = new StringBuilder();
-            for (String name : names) {
-                String t = name.trim();
+            for (String part : nameParts) {
+                String t = part.trim();
                 if (t.isEmpty()) continue;
                 b.append(("" + t.charAt(0)).toUpperCase());
                 if (++count >= 2) break;
             }
             return b.toString();
         } else {
-            return ("" + fullName.trim().charAt(0)).toUpperCase();
+            return ("" + name.trim().charAt(0)).toUpperCase();
         }
+    }
+
+    @NonNull
+    public static String getDisplayName(Identity identity) {
+        if (TextUtils.isEmpty(identity.getDisplayName())) {
+            String first = identity.getFirstName();
+            String last = identity.getLastName();
+            if (!TextUtils.isEmpty(first)) {
+                if (!TextUtils.isEmpty(last)) {
+                    return String.format("%s %s", first, last);
+                }
+                return first;
+            } else if (!TextUtils.isEmpty(last)) {
+                return last;
+            } else {
+                return identity.getUserId();
+            }
+        }
+        return identity.getDisplayName();
     }
 
     public static String formatTime(Context context, Date date, DateFormat timeFormat, DateFormat dateFormat) {
@@ -331,4 +310,5 @@ public class Util {
 
         void onDeauthenticationFailed(LayerClient client, String reason);
     }
+    
 }
