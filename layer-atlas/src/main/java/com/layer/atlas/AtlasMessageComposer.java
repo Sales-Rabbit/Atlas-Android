@@ -91,14 +91,6 @@ public class AtlasMessageComposer extends FrameLayout {
         initAttachmentMenu(context, attrs, defStyle);
     }
 
-    public String getEnteredText() {
-        return mMessageEditText.getText().toString();
-    }
-
-    public void setText(String textToSet) {
-        mMessageEditText.setText(textToSet);
-    }
-
     /**
      * Prepares this AtlasMessageComposer for use.
      *
@@ -383,7 +375,6 @@ public class AtlasMessageComposer extends FrameLayout {
             sender.onRestoreInstanceState(parcelable);
         }
     }
-
 
     /**
      * Saves a map from AttachmentSender class to AttachmentSender saved instance.

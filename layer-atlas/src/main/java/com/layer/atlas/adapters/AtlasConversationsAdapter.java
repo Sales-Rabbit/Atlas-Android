@@ -32,8 +32,8 @@ import com.layer.sdk.query.SortDescriptor;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
-import java.util.Collection;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -218,11 +218,6 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     public AtlasConversationsAdapter setOnConversationClickListener(OnConversationClickListener conversationClickListener) {
         mConversationClickListener = conversationClickListener;
         return this;
-    }
-
-
-    public void setConversationFormatter(ConversationFormatter mConversationFormatter) {
-        this.mConversationFormatter = mConversationFormatter;
     }
 
 
