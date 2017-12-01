@@ -38,15 +38,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Util {
-
     private static final int TIME_HOURS_24 = 24 * 60 * 60 * 1000;
-    private static final SimpleDateFormat DAY_OF_WEEK = new SimpleDateFormat("EEE, LLL dd,", Locale.US);
+    private static final SimpleDateFormat DAY_OF_WEEK = new SimpleDateFormat("EEE, LLL dd,", Locale.getDefault());
 
     /**
      * Returns the app version name.
@@ -310,5 +308,5 @@ public class Util {
 
         void onDeauthenticationFailed(LayerClient client, String reason);
     }
-    
+
 }

@@ -10,6 +10,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 24
         versionName = "${version}"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
@@ -28,14 +30,14 @@ repositories {
 
 dependencies {
     // Layer SDK
-    compile ('com.layer.sdk:layer-sdk:0.23.11') {
+    compile ('com.layer.sdk:layer-sdk:0.23.23') {
         exclude group: 'com.google.firebase', module: 'firebase-messaging'
         exclude group: 'com.google.firebase', module: 'firebase-core'
     }
     compile 'org.slf4j:slf4j-nop:1.7.2'
 
     // Google Location
-    compile 'com.google.android.gms:play-services-location:9.6.1'
+    compile 'com.google.android.gms:play-services-location:10.2.0'
 
     // Image cache and loading
     compile 'com.squareup.picasso:picasso:2.5.2'
@@ -47,4 +49,12 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
+
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+
+    // Espresso support
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }

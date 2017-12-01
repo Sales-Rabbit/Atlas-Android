@@ -21,6 +21,8 @@ public final class ConversationStyle {
     private int mCellUnreadBackgroundColor;
     private Typeface mDateTextTypeface;
     private int mDateTextColor;
+    private Typeface mDateUnreadTextTypeface;
+    private int mDateUnreadTextColor;
     private AvatarStyle mAvatarStyle;
 
     private ConversationStyle(Builder builder) {
@@ -40,6 +42,8 @@ public final class ConversationStyle {
         mCellUnreadBackgroundColor = builder.cellUnreadBackgroundColor;
         setDateTextTypeface(builder.dateTextTypeface);
         mDateTextColor = builder.dateTextColor;
+        setDateUnreadTextTypeface(builder.dateUnreadTextTypeface);
+        mDateUnreadTextColor = builder.dateUnreadTextColor;
         mAvatarStyle = builder.avatarStyle;
     }
     public void setTitleTextTypeface(Typeface titleTextTypeface) {
@@ -60,6 +64,10 @@ public final class ConversationStyle {
 
     public void setDateTextTypeface(Typeface dateTextTypeface) {
         this.mDateTextTypeface = dateTextTypeface;
+    }
+
+    public void setDateUnreadTextTypeface(Typeface dateUnreadTextTypeface) {
+        this.mDateUnreadTextTypeface = dateUnreadTextTypeface;
     }
 
     @ColorInt
@@ -133,6 +141,15 @@ public final class ConversationStyle {
         return mDateTextColor;
     }
 
+    public Typeface getDateUnreadTextTypeface() {
+        return mDateUnreadTextTypeface;
+    }
+
+    @ColorInt
+    public int getDateUnreadTextColor() {
+        return mDateUnreadTextColor;
+    }
+
     public AvatarStyle getAvatarStyle() {
         return mAvatarStyle;
     }
@@ -154,6 +171,8 @@ public final class ConversationStyle {
         private int cellUnreadBackgroundColor;
         private Typeface dateTextTypeface;
         private int dateTextColor;
+        private Typeface dateUnreadTextTypeface;
+        private int dateUnreadTextColor;
         private AvatarStyle avatarStyle;
 
         public Builder() {
@@ -236,6 +255,16 @@ public final class ConversationStyle {
 
         public Builder dateTextColor(@ColorInt int val) {
             dateTextColor = val;
+            return this;
+        }
+
+        public Builder dateUnreadTextTypeface(Typeface val) {
+            dateUnreadTextTypeface = val;
+            return this;
+        }
+
+        public Builder dateUnreadTextColor(@ColorInt int val) {
+            dateUnreadTextColor = val;
             return this;
         }
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 Sales Rabbit, Inc. All rights reserved.
- */
-
 package com.layer.atlas.util;
 
 import com.layer.sdk.LayerClient;
@@ -51,3 +47,4 @@ public class ConversationFormatter {
         }
     }
 }
+
