@@ -37,7 +37,7 @@ dependencies {
     compile 'org.slf4j:slf4j-nop:1.7.2'
 
     // Google Location
-    compile 'com.google.android.gms:play-services-location:12.0.1'
+    compile 'com.google.android.gms:play-services-location:15.0.1'
 
     // Image cache and loading
     compile 'com.squareup.picasso:picasso:2.5.2'
