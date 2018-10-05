@@ -3,7 +3,7 @@ package com.layer.atlas.messagetypes.text;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.support.v4.widget.ContentLoadingProgressBar;
+import androidx.core.widget.ContentLoadingProgressBar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;

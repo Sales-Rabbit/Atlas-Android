@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
-import static android.support.v4.app.ActivityCompat.requestPermissions;
-import static android.support.v4.content.ContextCompat.checkSelfPermission;
+import static androidx.core.app.ActivityCompat.requestPermissions;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 /**
  * AttachmentSenders populate the AtlasMessageComposer attachment menu and handle message sending
@@ -110,6 +110,6 @@ public abstract class AttachmentSender extends MessageSender {
     }
 
     protected void requestPermissions (@NonNull Activity activity, final int permissionsCode, String... permissions) {
-        android.support.v4.app.ActivityCompat.requestPermissions(activity, permissions, permissionsCode);
+        androidx.core.app.ActivityCompat.requestPermissions(activity, permissions, permissionsCode);
     }
 }

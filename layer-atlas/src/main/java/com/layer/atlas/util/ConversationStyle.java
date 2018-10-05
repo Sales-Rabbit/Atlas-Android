@@ -1,7 +1,7 @@
 package com.layer.atlas.util;
 
 import android.graphics.Typeface;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 
 public final class ConversationStyle {
 

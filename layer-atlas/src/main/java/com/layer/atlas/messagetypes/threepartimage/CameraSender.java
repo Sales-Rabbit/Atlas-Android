@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
-import android.support.annotation.NonNull;
+import androidx.core.content.FileProvider;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.layer.atlas.R;
